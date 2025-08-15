@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { TrendingUp, Zap, DollarSign, Target } from 'lucide-react';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 interface MetricCardProps {
   title: string;

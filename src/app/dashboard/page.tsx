@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import StickyNav from '@/components/dashboard/StickyNav';
 import ScrollProgress from '@/components/dashboard/ScrollProgress';
+import MagneticCursor from '@/components/ui/MagneticCursor';
+import ScrollReveal from '@/components/ui/ScrollReveal';
 import HeroMetrics from '@/components/dashboard/HeroMetrics';
 import SpendingSpeedometer from '@/components/dashboard/SpendingSpeedometer';
 import IncomeStreams from '@/components/dashboard/IncomeStreams';
@@ -38,19 +40,23 @@ export default function DashboardPage() {
 
   return (
     <TimeBasedBackground>
+      <MagneticCursor />
       <StickyNav />
       <ScrollProgress />
       
       <div className="relative">
         {/* Hero Metrics Section */}
-        <section id="dashboard" className="pt-8">
-          <HeroMetrics />
-        </section>
+        <ScrollReveal direction="up">
+          <section id="dashboard" className="pt-8">
+            <HeroMetrics />
+          </section>
+        </ScrollReveal>
 
         {/* Main Dashboard Grid */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <BentoGrid>
+        <ScrollReveal direction="up" delay={0.2}>
+          <section className="py-12">
+            <div className="max-w-7xl mx-auto px-6">
+              <BentoGrid className="stagger-children">
               {/* Spending Speedometer */}
               <ChartCard title="Spending Velocity" size="medium">
                 <SpendingSpeedometer 
@@ -110,28 +116,34 @@ export default function DashboardPage() {
                 icon={Zap}
                 size="small"
               />
-            </BentoGrid>
-          </div>
-        </section>
+              </BentoGrid>
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Income Streams Section */}
-        <section id="income" className="py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <IncomeStreams />
-          </div>
-        </section>
+        <ScrollReveal direction="left" delay={0.3}>
+          <section id="income" className="py-12">
+            <div className="max-w-7xl mx-auto px-6">
+              <IncomeStreams />
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Investment Performance Section */}
-        <section id="investments" className="py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <InvestmentPerformance />
-          </div>
-        </section>
+        <ScrollReveal direction="right" delay={0.4}>
+          <section id="investments" className="py-12">
+            <div className="max-w-7xl mx-auto px-6">
+              <InvestmentPerformance />
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Additional Metrics Grid */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <BentoGrid>
+        <ScrollReveal direction="up" delay={0.5}>
+          <section className="py-12">
+            <div className="max-w-7xl mx-auto px-6">
+              <BentoGrid className="stagger-children">
               <MetricCard
                 title="Monthly Expenses"
                 value="$3,247"
@@ -185,9 +197,10 @@ export default function DashboardPage() {
                 trendValue="+3.2%"
                 size="small"
               />
-            </BentoGrid>
-          </div>
-        </section>
+              </BentoGrid>
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Footer spacer */}
         <div className="h-20" />

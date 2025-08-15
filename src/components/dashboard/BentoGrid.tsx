@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ReactNode, useRef } from 'react';
+import PremiumButton from '@/components/ui/PremiumButton';
 
 interface BentoCardProps {
   children: ReactNode;
@@ -52,7 +53,7 @@ export const BentoCard = ({ children, className = '', size = 'small', gradient }
     <motion.div
       ref={cardRef}
       className={`
-        relative group cursor-pointer overflow-hidden ${sizeClasses[size]} ${className}
+        relative group cursor-pointer overflow-hidden magnetic premium-hover ${sizeClasses[size]} ${className}
       `}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -61,8 +62,12 @@ export const BentoCard = ({ children, className = '', size = 'small', gradient }
         rotateY,
         transformStyle: 'preserve-3d',
       }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      whileHover={{ 
+        scale: 1.02, 
+        y: -4,
+        transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
+      }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
     >
       {/* Background with gradient */}
       <div className={`
