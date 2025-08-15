@@ -121,14 +121,14 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     >
                       <div className="text-2xl font-bold text-white">M</div>
                     </motion.div>
-                    <h2 className="text-2xl font-display font-bold text-white">
+                    <Dialog.Title className="text-2xl font-display font-bold text-white">
                       {step === 'credentials' 
                         ? (mode === 'signin' ? 'Welcome Back' : 'Create Account')
                         : step === '2fa'
                         ? 'Verify Identity'
                         : 'Welcome to Meridian'
                       }
-                    </h2>
+                    </Dialog.Title>
                     <p className="text-gray-400 mt-2">
                       {step === 'credentials' 
                         ? (mode === 'signin' 
