@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Home, 
   TrendingUp, 
@@ -12,7 +13,8 @@ import {
   Search,
   User,
   Menu,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 
 interface NavItem {
@@ -24,7 +26,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '#dashboard' },
+  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard' },
+  { id: 'transactions', label: 'Transactions', icon: Receipt, href: '/transactions' },
   { id: 'investments', label: 'Investments', icon: TrendingUp, href: '#investments' },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics' },
@@ -80,21 +83,21 @@ export default function StickyNav() {
                   const isActive = activeItem === item.id;
                   
                   return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => setActiveItem(item.id)}
-                      className={`
-                        relative flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-300
-                        ${isActive 
-                          ? 'text-white bg-white/10' 
-                          : 'text-gray-400 hover:text-white hover:bg-white/5'
-                        }
-                      `}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
+                    <Link key={item.id} href={item.href}>
+                      <motion.button
+                        onClick={() => setActiveItem(item.id)}
+                        className={`
+                          relative flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-300
+                          ${isActive 
+                            ? 'text-white bg-white/10' 
+                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                          }
+                        `}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span className="font-medium">{item.label}</span>
                       {item.badge && (
                         <motion.div
                           className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
@@ -115,7 +118,8 @@ export default function StickyNav() {
                           transition={{ type: 'spring', stiffness: 300 }}
                         />
                       )}
-                    </motion.button>
+                      </motion.button>
+                    </Link>
                   );
                 })}
               </div>
@@ -214,30 +218,31 @@ export default function StickyNav() {
               const isActive = activeItem === item.id;
               
               return (
-                <motion.button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveItem(item.id);
-                    setIsMenuOpen(false);
-                  }}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
-                    ${isActive 
-                      ? 'text-white bg-white/10' 
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    }
-                  `}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                  {item.badge && (
-                    <div className="ml-auto w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{item.badge}</span>
-                    </div>
-                  )}
-                </motion.button>
+                <Link key={item.id} href={item.href}>
+                  <motion.button
+                    onClick={() => {
+                      setActiveItem(item.id);
+                      setIsMenuOpen(false);
+                    }}
+                    className={`
+                      w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300
+                      ${isActive 
+                        ? 'text-white bg-white/10' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      }
+                    `}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && (
+                      <div className="ml-auto w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{item.badge}</span>
+                      </div>
+                    )}
+                  </motion.button>
+                </Link>
               );
             })}
           </div>
