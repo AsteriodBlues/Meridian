@@ -1,75 +1,197 @@
-import { auth } from '@/auth';
-import { redirect } from 'next/navigation';
-import LogoutButton from '@/components/auth/LogoutButton';
+'use client';
 
-export default async function DashboardPage() {
-  const session = await auth();
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
+import StickyNav from '@/components/dashboard/StickyNav';
+import ScrollProgress from '@/components/dashboard/ScrollProgress';
+import HeroMetrics from '@/components/dashboard/HeroMetrics';
+import SpendingSpeedometer from '@/components/dashboard/SpendingSpeedometer';
+import IncomeStreams from '@/components/dashboard/IncomeStreams';
+import InvestmentPerformance from '@/components/dashboard/InvestmentPerformance';
+import { BentoGrid, MetricCard, ChartCard, QuickActionCard } from '@/components/dashboard/BentoGrid';
+import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-react';
+
+export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'loading') return; // Still loading
+    if (!session) {
+      router.push('/');
+    }
+  }, [session, status, router]);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-luxury-950 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   if (!session) {
-    redirect('/');
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-luxury-900 via-wisdom-900 to-trust-900">
-      <div className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
-            <div className="text-center flex-1">
-              <h1 className="text-4xl font-display font-bold text-white mb-4">
-                Welcome to Your Dashboard
-              </h1>
-              <p className="text-gray-300 text-lg">
-                Hello, {session.user?.name || session.user?.email}!
-              </p>
-            </div>
-            <LogoutButton />
+    <TimeBasedBackground>
+      <StickyNav />
+      <ScrollProgress />
+      
+      <div className="relative">
+        {/* Hero Metrics Section */}
+        <section id="dashboard" className="pt-8">
+          <HeroMetrics />
+        </section>
+
+        {/* Main Dashboard Grid */}
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <BentoGrid>
+              {/* Spending Speedometer */}
+              <ChartCard title="Spending Velocity" size="medium">
+                <SpendingSpeedometer 
+                  value={73} 
+                  title="Current Pace" 
+                  subtitle="Monthly budget utilization"
+                />
+              </ChartCard>
+
+              {/* Quick Actions */}
+              <QuickActionCard
+                title="Send Money"
+                description="Transfer to contacts"
+                icon={Send}
+                size="small"
+              />
+
+              <QuickActionCard
+                title="Pay Bills"
+                description="Manage payments"
+                icon={CreditCard}
+                size="small"
+              />
+
+              {/* Account Balance */}
+              <MetricCard
+                title="Checking Account"
+                value="$12,458"
+                subtitle="Available balance"
+                icon={Wallet}
+                trend="up"
+                trendValue="+$1,247"
+                size="medium"
+              />
+
+              <QuickActionCard
+                title="Savings Goal"
+                description="Track progress"
+                icon={PiggyBank}
+                size="small"
+              />
+
+              {/* Credit Score */}
+              <MetricCard
+                title="Credit Score"
+                value="784"
+                subtitle="Excellent"
+                icon={TrendingUp}
+                trend="up"
+                trendValue="+12 pts"
+                size="small"
+              />
+
+              <QuickActionCard
+                title="Invest"
+                description="Grow your wealth"
+                icon={Zap}
+                size="small"
+              />
+            </BentoGrid>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Account Balance Card */}
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-2">Account Balance</h3>
-              <p className="text-3xl font-bold text-growth-400">$12,458.92</p>
-              <p className="text-gray-400 text-sm mt-2">+2.3% from last month</p>
-            </div>
-
-            {/* Recent Transactions */}
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-2">Recent Transactions</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-300">Coffee Shop</span>
-                  <span className="text-red-400">-$4.50</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-300">Salary Deposit</span>
-                  <span className="text-growth-400">+$3,200.00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-300">Grocery Store</span>
-                  <span className="text-red-400">-$87.34</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-              <div className="space-y-3">
-                <button className="w-full bg-wisdom-500/20 hover:bg-wisdom-500/30 text-wisdom-300 rounded-lg py-2 px-4 transition-colors">
-                  Transfer Money
-                </button>
-                <button className="w-full bg-trust-500/20 hover:bg-trust-500/30 text-trust-300 rounded-lg py-2 px-4 transition-colors">
-                  Pay Bills
-                </button>
-                <button className="w-full bg-growth-500/20 hover:bg-growth-500/30 text-growth-300 rounded-lg py-2 px-4 transition-colors">
-                  Investment Portfolio
-                </button>
-              </div>
-            </div>
+        {/* Income Streams Section */}
+        <section id="income" className="py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <IncomeStreams />
           </div>
-        </div>
+        </section>
+
+        {/* Investment Performance Section */}
+        <section id="investments" className="py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <InvestmentPerformance />
+          </div>
+        </section>
+
+        {/* Additional Metrics Grid */}
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <BentoGrid>
+              <MetricCard
+                title="Monthly Expenses"
+                value="$3,247"
+                subtitle="15% below budget"
+                trend="down"
+                trendValue="-$623"
+                size="small"
+              />
+
+              <MetricCard
+                title="Savings Rate"
+                value="32%"
+                subtitle="Of total income"
+                trend="up"
+                trendValue="+5%"
+                size="small"
+              />
+
+              <MetricCard
+                title="Net Worth Growth"
+                value="+$8,456"
+                subtitle="This quarter"
+                trend="up"
+                trendValue="+12.8%"
+                size="medium"
+              />
+
+              <MetricCard
+                title="Emergency Fund"
+                value="$18,500"
+                subtitle="6 months coverage"
+                trend="neutral"
+                trendValue="Fully funded"
+                size="small"
+              />
+
+              <MetricCard
+                title="Debt Payoff"
+                value="$4,231"
+                subtitle="Remaining balance"
+                trend="down"
+                trendValue="-$1,890"
+                size="small"
+              />
+
+              <MetricCard
+                title="Investment Return"
+                value="15.3%"
+                subtitle="YTD performance"
+                trend="up"
+                trendValue="+3.2%"
+                size="small"
+              />
+            </BentoGrid>
+          </div>
+        </section>
+
+        {/* Footer spacer */}
+        <div className="h-20" />
       </div>
-    </div>
+    </TimeBasedBackground>
   );
 }
