@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard' },
   { id: 'transactions', label: 'Transactions', icon: Receipt, href: '/transactions' },
   { id: 'realestate', label: 'Real Estate', icon: Building2, href: '/realestate' },
-  { id: 'investments', label: 'Investments', icon: TrendingUp, href: '#investments' },
+  { id: 'investments', label: 'Investments', icon: TrendingUp, href: '/investments' },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '#settings' },
