@@ -259,15 +259,31 @@ const mockSankeyData = {
   ]
 };
 
+// Deterministic pseudo-random function for SSR compatibility
+const seededRandom = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash % 1000) / 1000;
+};
+
 const mockHeatmapData = Array.from({ length: 365 }, (_, i) => {
   const date = new Date(2024, 0, 1);
   date.setDate(date.getDate() + i);
   
+  // Use deterministic randomness based on day index
+  const amountSeed = `amount-${i}`;
+  const transactionSeed = `trans-${i}`;
+  const categorySeed = `cat-${i}`;
+  
   return {
     date: date.toISOString().split('T')[0],
-    amount: Math.random() * 500 + 50,
-    transactions: Math.floor(Math.random() * 10) + 1,
-    category: ['Food', 'Shopping', 'Entertainment', 'Transport'][Math.floor(Math.random() * 4)],
+    amount: seededRandom(amountSeed) * 500 + 50,
+    transactions: Math.floor(seededRandom(transactionSeed) * 10) + 1,
+    category: ['Food', 'Shopping', 'Entertainment', 'Transport'][Math.floor(seededRandom(categorySeed) * 4)],
     dayOfWeek: date.getDay(),
     week: Math.floor(i / 7)
   };

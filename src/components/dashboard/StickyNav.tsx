@@ -16,7 +16,8 @@ import {
   X,
   Receipt,
   Building2,
-  Calculator
+  Calculator,
+  Globe
 } from 'lucide-react';
 
 interface NavItem {
@@ -33,6 +34,7 @@ const navItems: NavItem[] = [
   { id: 'realestate', label: 'Real Estate', icon: Building2, href: '/realestate' },
   { id: 'investments', label: 'Investments', icon: TrendingUp, href: '/investments' },
   { id: 'budget', label: 'Budget', icon: Calculator, href: '/budget' },
+  { id: 'currency', label: 'Currency', icon: Globe, href: '/currency' },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '#settings' },
