@@ -14,7 +14,8 @@ import {
   User,
   Menu,
   X,
-  Receipt
+  Receipt,
+  Building2
 } from 'lucide-react';
 
 interface NavItem {
@@ -28,6 +29,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard' },
   { id: 'transactions', label: 'Transactions', icon: Receipt, href: '/transactions' },
+  { id: 'realestate', label: 'Real Estate', icon: Building2, href: '/realestate' },
   { id: 'investments', label: 'Investments', icon: TrendingUp, href: '#investments' },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics' },
@@ -77,7 +79,7 @@ export default function StickyNav() {
               </motion.div>
 
               {/* Navigation Items */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-3">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeItem === item.id;
@@ -87,7 +89,7 @@ export default function StickyNav() {
                       <motion.button
                         onClick={() => setActiveItem(item.id)}
                         className={`
-                          relative flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-300
+                          relative flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300
                           ${isActive 
                             ? 'text-white bg-white/10' 
                             : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -96,8 +98,8 @@ export default function StickyNav() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Icon className="w-5 h-5" />
-                        <span className="font-medium">{item.label}</span>
+                        <Icon className="w-4 h-4" />
+                        <span className="font-medium text-sm">{item.label}</span>
                       {item.badge && (
                         <motion.div
                           className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"

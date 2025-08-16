@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ModernClock from '@/components/ui/ModernClock';
 
 interface TimeBasedBackgroundProps {
   children: React.ReactNode;
@@ -200,23 +201,8 @@ export default function TimeBasedBackground({ children }: TimeBasedBackgroundPro
         {children}
       </div>
 
-      {/* Time indicator */}
-      <motion.div
-        className="fixed top-6 right-6 z-50"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-      >
-        <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
-          <div 
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: gradients.particles }}
-          />
-          <span className="text-white text-sm font-medium capitalize">
-            {timeOfDay} {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-      </motion.div>
+      {/* Modern Clock */}
+      <ModernClock />
     </div>
   );
 }
