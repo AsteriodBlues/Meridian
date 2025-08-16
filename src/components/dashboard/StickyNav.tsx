@@ -18,7 +18,8 @@ import {
   Building2,
   Calculator,
   Globe,
-  Shield
+  Shield,
+  Users
 } from 'lucide-react';
 
 interface NavItem {
@@ -37,6 +38,7 @@ const navItems: NavItem[] = [
   { id: 'budget', label: 'Budget', icon: Calculator, href: '/budget' },
   { id: 'currency', label: 'Currency', icon: Globe, href: '/currency' },
   { id: 'credit', label: 'Credit & Debt', icon: Shield, href: '/credit' },
+  { id: 'family', label: 'Family & Social', icon: Users, href: '/family' },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '#settings' },
