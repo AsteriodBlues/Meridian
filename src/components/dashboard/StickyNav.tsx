@@ -48,6 +48,7 @@ const navItems: NavItem[] = [
   { id: 'credit', label: 'Credit & Debt', icon: Shield, href: '/credit', category: 'finance' },
   { id: 'family', label: 'Family & Social', icon: Users, href: '/family', category: 'tools' },
   { id: 'tax-reports', label: 'Tax & Reports', icon: FileText, href: '/tax-reports', category: 'tools', isNew: true },
+  { id: 'assets-integration', label: 'Assets & Integration', icon: Home, href: '/assets-integration', category: 'tools', isNew: true },
   { id: 'cards', label: 'Cards', icon: CreditCard, href: '#cards', category: 'finance' },
   { id: 'analytics', label: 'Analytics', icon: PieChart, href: '#analytics', category: 'tools' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '#settings', category: 'core' },

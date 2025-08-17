@@ -242,7 +242,7 @@ export default function SpendingLeaderboard({
       reward: '$50 bonus to everyone',
       participants: ['mom', 'alex', 'lily'],
       isActive: true,
-      icon: Fire,
+      icon: Flame,
       color: '#ef4444'
     },
     {
