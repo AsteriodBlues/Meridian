@@ -248,7 +248,7 @@ const generateTransactions = (count: number): Transaction[] => {
       date.setDate(date.getDate() - Math.floor(Math.random() * 30));
       
       return {
-        id: `transaction-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `transaction-${i}`,
         title: 'Salary Deposit',
         category: 'Income',
         amount: Math.floor(Math.random() * 5000) + 2500,
@@ -271,7 +271,7 @@ const generateTransactions = (count: number): Transaction[] => {
       date.setDate(date.getDate() - Math.floor(Math.random() * 30));
       
       return {
-        id: `transaction-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `transaction-${i}`,
         title: `${brand.category} Purchase`,
         category: brand.category,
         amount,

@@ -257,8 +257,8 @@ export default function SnowballAnimation({
 
       setSnowballs(prev => prev.map((snowball, index) => {
         const size = Math.max(40, Math.min(120, (snowball.originalBalance / 25000) * 120));
-        const xSeed = `reset-x-${snowball.id}-${Date.now()}`;
-        const ySeed = `reset-y-${snowball.id}-${Date.now()}`;
+        const xSeed = `reset-x-${snowball.id}-${index}`;
+        const ySeed = `reset-y-${snowball.id}-${index}`;
         
         return {
           ...snowball,

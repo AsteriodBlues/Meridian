@@ -95,7 +95,7 @@ export default function LiveConverter({
       const currentRate = baseRate + fluctuation;
       
       const conversion: ConversionItem = {
-        id: `conversion-${Date.now()}-${selectedCurrency}`,
+        id: `conversion-${conversions.length}-${selectedCurrency}`,
         originalAmount: numericAmount,
         originalCurrency: baseCurrency,
         convertedAmount: numericAmount * currentRate,
@@ -127,7 +127,7 @@ export default function LiveConverter({
 
     const rate = exchangeRates[selectedCurrency] || 1;
     const conversion: ConversionItem = {
-      id: `manual-${Date.now()}-${selectedCurrency}`,
+      id: `manual-${conversions.length}-${selectedCurrency}`,
       originalAmount: numericAmount,
       originalCurrency: baseCurrency,
       convertedAmount: numericAmount * rate,

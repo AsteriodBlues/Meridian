@@ -49,6 +49,9 @@ export default function MagneticCursor() {
   const [ripples, setRipples] = useState<RippleEffect[]>([]);
   const [currentSection, setCurrentSection] = useState<string>('default');
   const [mouseVelocity, setMouseVelocity] = useState(0);
+  const dotCounterRef = useRef(0);
+  const particleCounterRef = useRef(0);
+  const rippleCounterRef = useRef(0);
   
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -96,7 +99,7 @@ export default function MagneticCursor() {
     setTrailDots(prev => {
       const currentColors = sectionColors[currentSection as keyof typeof sectionColors]?.primary || sectionColors.default.primary;
       const newDot: TrailDot = {
-        id: Date.now() + Math.random(),
+        id: dotCounterRef.current++,
         x: x + 16,
         y: y + 16,
         scale: Math.min(1 + velocity * 0.02, 2),
@@ -123,7 +126,7 @@ export default function MagneticCursor() {
       const angle = (i / 16) * Math.PI * 2;
       const velocity = 3 + Math.random() * 4;
       newParticles.push({
-        id: Date.now() + i,
+        id: particleCounterRef.current++,
         x: x + 16,
         y: y + 16,
         vx: Math.cos(angle) * velocity,
@@ -142,7 +145,7 @@ export default function MagneticCursor() {
       const angle = Math.random() * Math.PI * 2;
       const velocity = 1 + Math.random() * 2;
       newParticles.push({
-        id: Date.now() + i + 100,
+        id: particleCounterRef.current++,
         x: x + 16,
         y: y + 16,
         vx: Math.cos(angle) * velocity,
@@ -160,7 +163,7 @@ export default function MagneticCursor() {
     
     // Create ripple effect
     setRipples(prev => [...prev, {
-      id: Date.now(),
+      id: rippleCounterRef.current++,
       x: x + 16,
       y: y + 16,
       scale: 0,

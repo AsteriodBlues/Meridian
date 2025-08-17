@@ -150,7 +150,7 @@ export default function TravelMode({
     if (!currentLocation) return;
     
     const expense: TravelExpense = {
-      id: Date.now().toString(),
+      id: `expense-${expenses.length}`,
       description,
       amount,
       currency: currentLocation.currency,
