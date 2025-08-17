@@ -256,7 +256,7 @@ export default function MorphingFAB({ onAddTransaction }: MorphingFABProps) {
       exit={{ opacity: 0 }}
     >
       {Array.from({ length: 50 }).map((_, i) => (
-        <ConfettiParticle key={`confetti-${i}-${Date.now()}`} delay={i * 0.05} />
+        <ConfettiParticle key={`confetti-${i}`} delay={i * 0.05} />
       ))}
     </motion.div>
   ) : null;
@@ -358,7 +358,7 @@ export default function MorphingFAB({ onAddTransaction }: MorphingFABProps) {
               {/* Sparkle effects */}
               {Array.from({ length: 3 }).map((_, i) => (
                 <motion.div
-                  key={`fab-sparkle-${i}-${Date.now()}`}
+                  key={`fab-sparkle-${i}`}
                   className="absolute w-1 h-1 bg-white rounded-full"
                   style={{
                     top: `${20 + i * 15}%`,

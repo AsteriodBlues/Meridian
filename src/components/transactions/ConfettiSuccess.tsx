@@ -264,7 +264,7 @@ export default function ConfettiSuccess({
                     {/* Sparkle effects around the icon */}
                     {Array.from({ length: 6 }).map((_, i) => (
                       <motion.div
-                        key={`sparkle-${i}-${Date.now()}`}
+                        key={`sparkle-${i}`}
                         className="absolute w-2 h-2 bg-yellow-400 rounded-full"
                         style={{
                           left: `${50 + 40 * Math.cos((i * 60) * Math.PI / 180)}%`,

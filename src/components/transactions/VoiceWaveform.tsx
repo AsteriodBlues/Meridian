@@ -54,7 +54,7 @@ export default function VoiceWaveform({ isRecording, amplitude = 0.5, className 
     >
       {audioLevels.map((level, index) => (
         <motion.div
-          key={`audio-level-${index}-${Date.now()}`}
+          key={`audio-level-${index}`}
           className="w-1 bg-gradient-to-t from-purple-600 to-purple-400 rounded-full"
           animate={{
             height: `${Math.max(4, level * 60)}px`,

@@ -67,7 +67,7 @@ const FloatingParticles = ({ color, timeOfDay }: { color: string; timeOfDay: Tim
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {Array.from({ length: particleCount }).map((_, i) => (
         <motion.div
-          key={`${timeOfDay}-${i}`}
+          key={`particle-${i}`}
           className="absolute w-1 h-1 rounded-full opacity-60"
           style={{
             backgroundColor: color,
@@ -170,7 +170,7 @@ export default function TimeBasedBackground({ children }: TimeBasedBackgroundPro
       {/* Base gradient background */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={timeOfDay}
+          key="background-gradient"
           className={`fixed inset-0 bg-gradient-to-br ${gradients.primary}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

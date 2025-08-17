@@ -207,7 +207,7 @@ export default function ModernClock({ className = '' }: ModernClockProps) {
                 {/* Hours and minutes */}
                 <motion.span
                   className="text-white font-bold text-xl font-mono tracking-tight"
-                  key={timeString}
+                  key="time-display"
                   initial={{ scale: 1.1, opacity: 0.7 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.2 }}
@@ -230,7 +230,7 @@ export default function ModernClock({ className = '' }: ModernClockProps) {
               {/* Time of day label */}
               <motion.span
                 className="text-gray-300 text-xs font-medium capitalize tracking-wide"
-                key={timeOfDay}
+                key="time-of-day"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
