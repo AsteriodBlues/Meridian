@@ -24,6 +24,9 @@ interface Transaction {
   brandName?: string;
 }
 
+// Global counter to ensure unique IDs
+let transactionCounter = 0;
+
 const generateTransactions = (count: number): Transaction[] => {
   const categories = [
     { name: 'Food', icon: Utensils, color: '#F59E0B' },
@@ -248,7 +251,7 @@ const generateTransactions = (count: number): Transaction[] => {
       date.setDate(date.getDate() - Math.floor(Math.random() * 30));
       
       return {
-        id: `transaction-${i}`,
+        id: `transaction-${++transactionCounter}`,
         title: 'Salary Deposit',
         category: 'Income',
         amount: Math.floor(Math.random() * 5000) + 2500,
@@ -271,7 +274,7 @@ const generateTransactions = (count: number): Transaction[] => {
       date.setDate(date.getDate() - Math.floor(Math.random() * 30));
       
       return {
-        id: `transaction-${i}`,
+        id: `transaction-${++transactionCounter}`,
         title: `${brand.category} Purchase`,
         category: brand.category,
         amount,
