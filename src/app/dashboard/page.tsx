@@ -19,6 +19,8 @@ import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-rea
 import SplitTextAnimation, { SplitWordsAnimation, MaskTextReveal } from '@/components/typography/SplitTextAnimation';
 import { GoldenContainer, GoldenGrid, GoldenSection, GoldenCard } from '@/components/layout/GoldenLayout';
 import { ScrollReveal as AwwardsScrollReveal, Magnetic, ParallaxScroll, StaggerContainer, FloatingParticles, LiquidLoader } from '@/components/animations/AwwardsAnimations';
+import CinematicHero from '@/components/hero/CinematicHero';
+import { DynamicThemeProvider } from '@/components/theme/DynamicTheme';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -44,13 +46,19 @@ export default function DashboardPage() {
   // Let middleware handle authentication - no need to check session here
 
   return (
-    <TimeBasedBackground>
-      <MagneticCursor />
-      <StickyNav />
-      <ScrollProgress />
-      <FloatingParticles count={20} className="opacity-30" />
-      
-      <GoldenContainer className="relative pb-12">
+    <DynamicThemeProvider>
+      <div className="relative">
+        <MagneticCursor />
+        
+        {/* Cinematic Hero Section */}
+        <CinematicHero />
+        
+        <TimeBasedBackground>
+        <StickyNav />
+        <ScrollProgress />
+        <FloatingParticles count={20} className="opacity-30" />
+        
+        <GoldenContainer className="relative pb-12">
         {/* Hero Welcome Section */}
         <GoldenSection spacing="spacious" className="pt-8">
           <div className="text-center mb-16">
@@ -362,5 +370,7 @@ export default function DashboardPage() {
         </GoldenSection>
       </GoldenContainer>
     </TimeBasedBackground>
+      </div>
+    </DynamicThemeProvider>
   );
 }

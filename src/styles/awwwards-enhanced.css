@@ -389,3 +389,165 @@
 .contain-strict {
   contain: strict;
 }
+
+/* === CINEMATIC HERO ENHANCEMENTS === */
+
+/* Cinematic text effects */
+.cinematic-text {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.cinematic-text span {
+  display: inline-block;
+  transform-style: preserve-3d;
+}
+
+/* Advanced particle system styles */
+.particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Liquid button effects */
+.liquid-button {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.liquid-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.liquid-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.liquid-button:hover::before {
+  left: 100%;
+}
+
+/* Gradient mesh animations */
+.gradient-mesh {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+  animation: mesh-flow 20s ease-in-out infinite;
+}
+
+@keyframes mesh-flow {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05) rotate(0.5deg);
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(1deg);
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(0.5deg);
+    filter: hue-rotate(270deg);
+  }
+}
+
+/* Scroll indicator styles */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  animation: float-pulse 2s ease-in-out infinite;
+}
+
+@keyframes float-pulse {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px);
+    opacity: 1;
+  }
+}
+
+/* Morphing counter styles */
+.morphing-counter {
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s ease;
+}
+
+/* Dynamic theme transitions */
+.theme-transitioning {
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-dawn {
+  --primary-glow: hsla(15, 80%, 60%, 0.3);
+}
+
+.theme-morning {
+  --primary-glow: hsla(200, 85%, 65%, 0.3);
+}
+
+.theme-afternoon {
+  --primary-glow: hsla(280, 80%, 65%, 0.3);
+}
+
+.theme-dusk {
+  --primary-glow: hsla(330, 75%, 65%, 0.3);
+}
+
+.theme-night {
+  --primary-glow: hsla(240, 90%, 70%, 0.3);
+}
+
+/* === ENHANCED ACCESSIBILITY === */
+@media (prefers-reduced-motion: reduce) {
+  .premium-hover * {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .animate-liquid,
+  .animate-pulse,
+  .animate-float {
+    animation: none !important;
+  }
+  
+  .gradient-mesh,
+  .float-pulse,
+  .mesh-flow {
+    animation: none !important;
+  }
+  
+  .cinematic-text span {
+    transform: none !important;
+  }
+}
