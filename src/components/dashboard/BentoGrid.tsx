@@ -86,7 +86,7 @@ export const BentoCard = ({ children, className = '', size = 'small', gradient }
 
       {/* Content */}
       <div 
-        className="relative z-10 h-full p-3 sm:p-4 rounded-3xl flex flex-col min-h-0 overflow-hidden"
+        className="relative z-10 h-full p-5 rounded-3xl flex flex-col"
         style={{ transform: 'translateZ(50px)' }}
       >
         {children}
@@ -115,7 +115,7 @@ export const BentoGrid = ({ children, className = '' }: BentoGridProps) => {
   return (
     <div className={`
       grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[280px]
-      perspective-1000 ${className}
+      perspective-1000 w-full ${className}
     `}>
       {children}
     </div>
@@ -148,12 +148,12 @@ export const MetricCard = ({
 
   return (
     <BentoCard size={size}>
-      <div className="flex flex-col h-full justify-between min-h-0">
-        <div className="flex items-start justify-between gap-2 min-h-0">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <h3 className="text-gray-400 text-xs font-medium mb-1 leading-tight break-words hyphens-auto">{title}</h3>
+      <div className="h-full flex flex-col justify-between">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-gray-400 text-sm font-medium mb-3 leading-relaxed break-words">{title}</h3>
             <motion.p 
-              className="text-sm sm:text-base lg:text-lg font-bold text-white leading-tight break-words hyphens-auto"
+              className="text-xl font-bold text-white leading-relaxed break-words mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -161,23 +161,23 @@ export const MetricCard = ({
               {value}
             </motion.p>
             {subtitle && (
-              <p className="text-gray-500 text-xs mt-1 leading-tight break-words hyphens-auto">{subtitle}</p>
+              <p className="text-gray-500 text-sm leading-relaxed break-words">{subtitle}</p>
             )}
           </div>
           {Icon && (
             <motion.div
-              className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg bg-white/10"
+              className="flex-shrink-0 p-2 rounded-lg bg-white/10"
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-wisdom-400" />
+              <Icon className="w-5 h-5 text-wisdom-400" />
             </motion.div>
           )}
         </div>
         
         {trend && trendValue && (
-          <div className={`flex items-center gap-2 mt-2 ${trendColors[trend]} min-h-0`}>
-            <span className="text-xs sm:text-sm font-medium truncate">{trendValue}</span>
+          <div className={`flex items-center gap-2 mt-4 ${trendColors[trend]}`}>
+            <span className="text-sm font-medium break-words">{trendValue}</span>
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
               trend === 'up' ? 'bg-growth-400' : 
               trend === 'down' ? 'bg-red-400' : 'bg-gray-400'
@@ -200,9 +200,9 @@ export const ChartCard = ({
 }) => {
   return (
     <BentoCard size={size}>
-      <div className="h-full flex flex-col min-h-0 overflow-hidden">
-        <h3 className="text-white text-xs sm:text-sm font-semibold mb-2 leading-tight break-words hyphens-auto">{title}</h3>
-        <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+      <div className="h-full flex flex-col">
+        <h3 className="text-white text-sm font-semibold mb-4 leading-relaxed break-words">{title}</h3>
+        <div className="flex-1 flex items-center justify-center min-h-0">
           {children}
         </div>
       </div>
@@ -226,20 +226,20 @@ export const QuickActionCard = ({
   return (
     <BentoCard size={size}>
       <motion.div
-        className="h-full flex flex-col justify-center items-center text-center cursor-pointer min-h-0 p-2"
+        className="h-full flex flex-col justify-center items-center text-center cursor-pointer p-2"
         onClick={onClick}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
         <motion.div
-          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-wisdom-500 to-trust-500 flex items-center justify-center mb-2 sm:mb-4 flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-gradient-to-r from-wisdom-500 to-trust-500 flex items-center justify-center mb-3 flex-shrink-0"
           whileHover={{ rotate: 360 }}
           transition={{ duration: 0.6 }}
         >
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <Icon className="w-5 h-5 text-white" />
         </motion.div>
-        <h3 className="text-white font-semibold mb-1 text-xs sm:text-sm leading-tight break-words hyphens-auto text-center">{title}</h3>
-        <p className="text-gray-400 text-xs leading-tight text-center break-words hyphens-auto px-1">{description}</p>
+        <h3 className="text-white font-semibold mb-2 text-sm leading-relaxed break-words">{title}</h3>
+        <p className="text-gray-400 text-sm leading-relaxed break-words">{description}</p>
       </motion.div>
     </BentoCard>
   );

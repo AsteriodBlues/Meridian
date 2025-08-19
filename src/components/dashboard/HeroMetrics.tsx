@@ -14,6 +14,18 @@ interface MetricCardProps {
   delay?: number;
 }
 
+const getSubtitle = (title: string) => {
+  const subtitles: Record<string, string> = {
+    'Monthly Expenses': '7% below budget',
+    'Savings Rate': 'Of total income',
+    'Net Worth Growth': 'This quarter',
+    'Emergency Fund': '6 months coverage',
+    'Debt Payoff': 'Remaining balance',
+    'Investment Return': 'YTD performance',
+  };
+  return subtitles[title] || '';
+};
+
 const MetricCard = ({ title, value, change, changeType, icon: Icon, delay = 0 }: MetricCardProps) => {
   const [mounted, setMounted] = useState(false);
 
@@ -32,7 +44,7 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, delay = 0 }:
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
-      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 hover:bg-white/10 transition-all duration-500"
+      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-5 hover:bg-white/10 transition-all duration-500 h-44 min-h-[176px]"
     >
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-wisdom-500/20 via-transparent to-trust-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -40,20 +52,29 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, delay = 0 }:
       {/* Glow effect */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-wisdom-400/20 to-trust-400/20 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
       
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
+      <div className="relative z-10 h-full flex flex-col justify-between">
+        {/* Header with icon and change indicator */}
+        <div className="flex items-start justify-between mb-3">
           <div className="p-2 rounded-lg bg-gradient-to-br from-wisdom-500/20 to-trust-500/20 group-hover:scale-110 transition-transform duration-300">
             <Icon className="h-5 w-5 text-wisdom-400" />
           </div>
-          <span className={`text-sm font-medium ${changeColors[changeType]}`}>
+          <span className={`text-sm font-medium ${changeColors[changeType]} leading-relaxed`}>
             {change}
           </span>
         </div>
         
-        <h3 className="text-gray-400 text-sm font-medium mb-2">{title}</h3>
-        <p className="text-2xl font-bold text-white group-hover:text-wisdom-300 transition-colors duration-300">
-          {mounted ? value : '---'}
-        </p>
+        {/* Content */}
+        <div className="flex-1 flex flex-col">
+          <h3 className="text-gray-400 text-sm font-medium leading-relaxed mb-2">{title}</h3>
+          <p className="text-xs text-gray-500 leading-relaxed mb-4">{getSubtitle(title)}</p>
+          
+          {/* Value */}
+          <div className="mt-auto">
+            <p className="text-2xl font-bold text-white group-hover:text-wisdom-300 transition-colors duration-300 leading-tight">
+              {mounted ? value : '---'}
+            </p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -102,41 +123,57 @@ const LiquidMetalCounter = () => {
 export default function HeroMetrics() {
   const metrics = [
     {
-      title: 'Monthly Income',
-      value: '$12,847',
-      change: '+8.2%',
+      title: 'Monthly Expenses',
+      value: '$3,247',
+      change: '+5%',
       changeType: 'positive' as const,
       icon: DollarSign,
       delay: 0.1,
     },
     {
-      title: 'Spending Velocity',
-      value: '73%',
-      change: '-2.1%',
+      title: 'Savings Rate',
+      value: '32%',
+      change: '+5%',
       changeType: 'positive' as const,
-      icon: Zap,
+      icon: Target,
       delay: 0.2,
     },
     {
-      title: 'Investment Growth',
-      value: '+$4,231',
-      change: '+15.3%',
+      title: 'Net Worth Growth',
+      value: '+$8,456',
+      change: '+12.8%',
       changeType: 'positive' as const,
       icon: TrendingUp,
       delay: 0.3,
     },
     {
-      title: 'Savings Goal',
-      value: '89%',
-      change: 'On track',
+      title: 'Emergency Fund',
+      value: '$18,500',
+      change: 'Funded',
       changeType: 'neutral' as const,
-      icon: Target,
+      icon: Zap,
       delay: 0.4,
+    },
+    {
+      title: 'Debt Payoff',
+      value: '$4,231',
+      change: '-$1,890',
+      changeType: 'negative' as const,
+      icon: DollarSign,
+      delay: 0.5,
+    },
+    {
+      title: 'Investment Return',
+      value: '15.3%',
+      change: '+3.2%',
+      changeType: 'positive' as const,
+      icon: TrendingUp,
+      delay: 0.6,
     },
   ];
 
   return (
-    <section className="relative py-12">
+    <section className="relative">
       {/* Background particles */}
       <div className="absolute inset-0 overflow-hidden">
         {Array.from({ length: 30 }).map((_, i) => (
@@ -160,10 +197,9 @@ export default function HeroMetrics() {
         ))}
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 w-full space-y-8">
         {/* Liquid Metal Net Worth Counter */}
         <motion.div 
-          className="mb-12"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
@@ -171,8 +207,8 @@ export default function HeroMetrics() {
           <LiquidMetalCounter />
         </motion.div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Metrics Grid - Perfect alignment */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {metrics.map((metric, index) => (
             <MetricCard key={metric.title} {...metric} />
           ))}

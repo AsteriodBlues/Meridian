@@ -172,7 +172,7 @@ export default function IncomeStreams() {
   const totalIncome = incomeSources.reduce((sum, source) => sum + source.amount, 0);
 
   return (
-    <div className="relative bg-gradient-to-br from-luxury-900/50 to-luxury-800/30 rounded-3xl border border-white/10 backdrop-blur-xl overflow-hidden">
+    <div className="relative bg-gradient-to-br from-luxury-900/50 to-luxury-800/30 rounded-3xl border border-white/10 backdrop-blur-xl overflow-hidden w-full">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-r from-wisdom-500/5 via-trust-500/5 to-growth-500/5" />
       
@@ -192,7 +192,7 @@ export default function IncomeStreams() {
         </div>
 
         {/* Canvas for particles */}
-        <div className="relative h-80 mb-6">
+        <div className="relative h-72 mb-6">
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full"

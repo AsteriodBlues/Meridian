@@ -194,15 +194,15 @@ export default function InvestmentPerformance() {
         {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-r from-wisdom-500/10 via-trust-500/10 to-growth-500/10 rounded-3xl blur-xl" />
         
-        <div className="relative bg-luxury-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+        <div className="relative bg-luxury-800/30 backdrop-blur-xl border border-white/10 rounded-3xl p-8 w-full">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Investment Portfolio</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Investment Portfolio</h2>
               <p className="text-gray-400">Real-time performance tracking</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-400 mb-1">Total Value</p>
-              <p className="text-4xl font-bold text-white mb-2">
+              <p className="text-3xl font-bold text-white mb-2">
                 ${totalValue.toLocaleString()}
               </p>
               <div className={`flex items-center gap-2 justify-end ${totalChange >= 0 ? 'text-growth-400' : 'text-red-400'}`}>

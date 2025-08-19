@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 
 // Import components
+import StickyNav from '@/components/dashboard/StickyNav';
+import MagneticCursor from '@/components/ui/MagneticCursor';
 import TaxCenter from '@/components/tax/TaxCenter';
 import ReceiptAI from '@/components/tax/ReceiptAI';
 import QuarterlyEstimates from '@/components/tax/QuarterlyEstimates';
@@ -156,6 +158,8 @@ export default function TaxReportsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+      <MagneticCursor />
+      <StickyNav />
       {/* Header */}
       <div className="relative z-10 p-6">
         <motion.div

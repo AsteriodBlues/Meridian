@@ -38,7 +38,7 @@ export default function DashboardPage() {
       <StickyNav />
       <ScrollProgress />
       
-      <div className="relative">
+      <div className="relative max-w-7xl mx-auto px-6 space-y-12 pb-12">
         {/* Hero Metrics Section */}
         <ScrollReveal direction="up">
           <section id="dashboard" className="pt-8">
@@ -48,8 +48,8 @@ export default function DashboardPage() {
 
         {/* Main Dashboard Grid */}
         <ScrollReveal direction="up" delay={0.2}>
-          <section className="py-12">
-            <div className="max-w-7xl mx-auto px-6">
+          <section>
+            <div className="w-full">
               <BentoGrid className="stagger-children">
               {/* Spending Speedometer */}
               <ChartCard title="Spending Velocity" size="medium">
@@ -117,19 +117,15 @@ export default function DashboardPage() {
 
         {/* Income Streams Section */}
         <ScrollReveal direction="left" delay={0.3}>
-          <section id="income" className="py-12">
-            <div className="max-w-7xl mx-auto px-6">
-              <IncomeStreams />
-            </div>
+          <section id="income">
+            <IncomeStreams />
           </section>
         </ScrollReveal>
 
         {/* Investment Performance Section */}
         <ScrollReveal direction="right" delay={0.4}>
-          <section id="investments" className="py-12">
-            <div className="max-w-7xl mx-auto px-6">
-              <InvestmentPerformance />
-            </div>
+          <section id="investments">
+            <InvestmentPerformance />
           </section>
         </ScrollReveal>
 
