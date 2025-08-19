@@ -19,12 +19,8 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === 'loading') return; // Still loading
-    if (!session) {
-      router.push('/');
-    }
-  }, [session, status, router]);
+  // Remove the redirect useEffect to prevent redirect loop
+  // The middleware already handles authentication redirects
 
   if (status === 'loading') {
     return (
@@ -34,9 +30,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!session) {
-    return null;
-  }
+  // Let middleware handle authentication - no need to check session here
 
   return (
     <TimeBasedBackground>
