@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
-import StickyNav from '@/components/dashboard/StickyNav';
+import PageLayout from '@/components/layout/PageLayout';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import PropertyCard from '@/components/realestate/PropertyCard';
 import PropertyAnalytics from '@/components/realestate/PropertyAnalytics';
@@ -249,11 +249,11 @@ export default function RealEstatePage() {
   };
 
   return (
-    <TimeBasedBackground>
-      <MagneticCursor />
-      <StickyNav />
-      
-      <div className="min-h-screen pt-20">
+    <PageLayout>
+      <TimeBasedBackground>
+        <MagneticCursor />
+        
+        <div className="min-h-screen">
         {/* Header */}
         <motion.div
           className="max-w-7xl mx-auto px-6 py-8"
@@ -491,7 +491,8 @@ export default function RealEstatePage() {
             }}
           />
         </motion.button>
-      </div>
-    </TimeBasedBackground>
+        </div>
+      </TimeBasedBackground>
+    </PageLayout>
   );
 }

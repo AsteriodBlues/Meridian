@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
-import StickyNav from '@/components/dashboard/StickyNav';
 import MagneticCursor from '@/components/ui/MagneticCursor';
+import PageLayout from '@/components/layout/PageLayout';
 import TransactionFeed from '@/components/transactions/TransactionFeed';
 import MorphingFAB from '@/components/transactions/MorphingFAB';
 
@@ -26,11 +26,11 @@ export default function TransactionsPage() {
   };
 
   return (
-    <TimeBasedBackground>
-      <MagneticCursor />
-      <StickyNav />
-      
-      <div className="min-h-screen pt-20">
+    <PageLayout>
+      <TimeBasedBackground>
+        <MagneticCursor />
+        
+        <div className="min-h-screen">
         {/* Header */}
         <motion.div
           className="max-w-7xl mx-auto px-6 py-8"
@@ -93,11 +93,11 @@ export default function TransactionsPage() {
 
         {/* Spacing for FAB */}
         <div className="h-32" />
-      </div>
+        </div>
 
-      {/* Floating Action Button */}
-      <MorphingFAB onAddTransaction={handleAddTransaction} />
-
-    </TimeBasedBackground>
+        {/* Floating Action Button */}
+        <MorphingFAB onAddTransaction={handleAddTransaction} />
+      </TimeBasedBackground>
+    </PageLayout>
   );
 }

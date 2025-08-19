@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
-import StickyNav from '@/components/dashboard/StickyNav';
+import PageLayout from '@/components/layout/PageLayout';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import ParticleBackground from '@/components/budget/ParticleBackground';
 import { FadeUpReveal, ScaleReveal, BlurReveal, MagneticReveal } from '@/components/budget/ScrollReveal';
@@ -67,16 +67,16 @@ export default function CurrencyPage() {
   ];
 
   return (
-    <TimeBasedBackground>
-      <ParticleBackground 
-        particleCount={80}
-        interactive={true}
-        colors={['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']}
-      />
-      <MagneticCursor />
-      <StickyNav />
-      
-      <div className="min-h-screen pt-20">
+    <PageLayout>
+      <TimeBasedBackground>
+        <ParticleBackground 
+          particleCount={80}
+          interactive={true}
+          colors={['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']}
+        />
+        <MagneticCursor />
+        
+        <div className="min-h-screen">
         {/* Main Content */}
         <AnimatePresence mode="wait">
           {activeView === 'hub' && (
@@ -346,7 +346,8 @@ export default function CurrencyPage() {
             </div>
           </motion.div>
         )}
-      </div>
-    </TimeBasedBackground>
+        </div>
+      </TimeBasedBackground>
+    </PageLayout>
   );
 }

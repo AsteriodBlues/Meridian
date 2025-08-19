@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
-import StickyNav from '@/components/dashboard/StickyNav';
 import ScrollProgress from '@/components/dashboard/ScrollProgress';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import ScrollReveal from '@/components/ui/ScrollReveal';
@@ -20,7 +19,8 @@ import SplitTextAnimation, { SplitWordsAnimation, MaskTextReveal } from '@/compo
 import { GoldenContainer, GoldenGrid, GoldenSection, GoldenCard } from '@/components/layout/GoldenLayout';
 import { ScrollReveal as AwwardsScrollReveal, Magnetic, ParallaxScroll, StaggerContainer, FloatingParticles, LiquidLoader } from '@/components/animations/AwwardsAnimations';
 import CinematicHero from '@/components/hero/CinematicHero';
-import { DynamicThemeProvider } from '@/components/theme/DynamicTheme';
+import PageLayout from '@/components/layout/PageLayout';
+import { SwipeHandler, PullToRefresh } from '@/components/navigation/PageTransitions';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -45,18 +45,36 @@ export default function DashboardPage() {
 
   // Let middleware handle authentication - no need to check session here
 
+  const handleRefresh = async () => {
+    // Simulate data refresh
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    window.location.reload();
+  };
+
+  const handleSwipeLeft = () => {
+    router.push('/investments');
+  };
+
+  const handleSwipeRight = () => {
+    router.push('/budget');
+  };
+
   return (
-    <DynamicThemeProvider>
-      <div className="relative">
-        <MagneticCursor />
-        
-        {/* Cinematic Hero Section */}
-        <CinematicHero />
-        
-        <TimeBasedBackground>
-        <StickyNav />
-        <ScrollProgress />
-        <FloatingParticles count={20} className="opacity-30" />
+    <PageLayout showHero={true}>
+      <SwipeHandler 
+        onSwipeLeft={handleSwipeLeft}
+        onSwipeRight={handleSwipeRight}
+      >
+        <PullToRefresh onRefresh={handleRefresh}>
+          <div className="relative">
+            <MagneticCursor />
+            
+            {/* Cinematic Hero Section */}
+            <CinematicHero />
+            
+            <TimeBasedBackground>
+              <ScrollProgress />
+              <FloatingParticles count={20} className="opacity-30" />
         
         <GoldenContainer className="relative pb-12">
         {/* Hero Welcome Section */}
@@ -367,10 +385,12 @@ export default function DashboardPage() {
               </SplitTextAnimation>
             </div>
           </AwwardsScrollReveal>
-        </GoldenSection>
-      </GoldenContainer>
-    </TimeBasedBackground>
-      </div>
-    </DynamicThemeProvider>
+              </GoldenSection>
+            </GoldenContainer>
+          </TimeBasedBackground>
+          </div>
+        </PullToRefresh>
+      </SwipeHandler>
+    </PageLayout>
   );
 }

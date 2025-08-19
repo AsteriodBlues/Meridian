@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // Import components
-import StickyNav from '@/components/dashboard/StickyNav';
+import PageLayout from '@/components/layout/PageLayout';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import AssetManager from '@/components/assets/AssetManager';
 import MaintenanceTimeline from '@/components/assets/MaintenanceTimeline';
@@ -128,9 +128,9 @@ export default function AssetsIntegrationPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
-      <MagneticCursor />
-      <StickyNav />
+    <PageLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+        <MagneticCursor />
       {/* Header */}
       <div className="relative z-10 p-6">
         <motion.div
@@ -513,6 +513,7 @@ export default function AssetsIntegrationPage() {
           />
         ))}
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 }
