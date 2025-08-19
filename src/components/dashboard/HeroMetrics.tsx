@@ -174,27 +174,35 @@ export default function HeroMetrics() {
 
   return (
     <section className="relative">
-      {/* Background particles */}
+      {/* Background particles - Fixed positions to avoid hydration issues */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-wisdom-400/30 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+        {Array.from({ length: 30 }).map((_, i) => {
+          // Use deterministic positions based on index
+          const x = (i * 37.5) % 100; // Creates distributed positions
+          const y = ((i * 23.7) % 100); // Creates distributed positions
+          const duration = 3 + (i % 3);
+          const delay = (i * 0.2) % 2;
+          
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-wisdom-400/30 rounded-full"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+              }}
+              animate={{
+                y: [0, -20, 0],
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                delay,
+              }}
+            />
+          );
+        })}
       </div>
 
       <div className="relative z-10 w-full space-y-8">
