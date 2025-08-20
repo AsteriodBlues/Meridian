@@ -23,6 +23,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+// Auth Components
+import LogoutButton from '@/components/auth/LogoutButton';
+
 // Enhanced Desktop Navigation
 const DesktopNavigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -345,21 +348,38 @@ const DesktopNavigation = () => {
             </motion.button>
 
             {/* User Menu */}
-            <motion.button
-              className="flex items-center gap-2 p-2 rounded-full hover:bg-white/10 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {session?.user?.image ? (
-                <img
-                  src={session.user.image}
-                  alt="Profile"
-                  className="w-6 h-6 rounded-full"
-                />
-              ) : (
+            {session ? (
+              <div className="flex items-center gap-3">
+                <motion.div
+                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt="Profile"
+                      className="w-6 h-6 rounded-full"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-gray-300" />
+                  )}
+                  <span className="text-sm text-gray-300">
+                    {session.user?.name || 'User'}
+                  </span>
+                </motion.div>
+                
+                <LogoutButton variant="icon" />
+              </div>
+            ) : (
+              <motion.button
+                className="flex items-center gap-2 p-2 rounded-full hover:bg-white/10 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/'}
+              >
                 <User className="w-5 h-5 text-gray-300" />
-              )}
-            </motion.button>
+              </motion.button>
+            )}
           </div>
         </div>
       </div>

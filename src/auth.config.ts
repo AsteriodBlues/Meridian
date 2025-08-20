@@ -28,7 +28,7 @@ export default {
 
           // In a real app, you would verify against your database
           // For demo purposes, we'll use a simple check
-          if (email === 'demo@meridian.com' && password === 'password123') {
+          if (email === 'demo@meridian.com' && password === 'demo123') {
             return {
               id: '1',
               name: 'Demo User',
