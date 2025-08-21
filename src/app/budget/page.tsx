@@ -17,7 +17,8 @@ import EnvelopeSystem from '@/components/budget/EnvelopeSystem';
 import AnimatedLineChart from '@/components/budget/charts/AnimatedLineChart';
 import AnimatedBarChart from '@/components/budget/charts/AnimatedBarChart';
 import LiquidDonutChart from '@/components/budget/charts/LiquidDonutChart';
-import SankeyDiagram from '@/components/budget/charts/SankeyDiagram';
+import SankeyFlowChart from '@/components/budget/charts/SankeyFlowChart';
+import SpendingTreeMap from '@/components/budget/charts/SpendingTreeMap';
 import SpendingHeatmap from '@/components/budget/charts/SpendingHeatmap';
 
 import { 
@@ -291,7 +292,7 @@ const mockHeatmapData = Array.from({ length: 365 }, (_, i) => {
 
 export default function BudgetPage() {
   const [activeView, setActiveView] = useState<'overview' | 'categories' | 'envelopes' | 'charts' | 'analytics'>('overview');
-  const [selectedChart, setSelectedChart] = useState<'line' | 'bar' | 'donut' | 'sankey' | 'heatmap'>('line');
+  const [selectedChart, setSelectedChart] = useState<'line' | 'bar' | 'donut' | 'sankey' | 'heatmap' | 'treemap'>('line');
 
   return (
     <PageLayout>
@@ -441,24 +442,26 @@ export default function BudgetPage() {
                 {/* Chart Selector */}
                 <div className="flex justify-center gap-2 mb-8 flex-wrap">
                   {[
-                    { key: 'line', label: 'Line Chart' },
-                    { key: 'bar', label: 'Bar Chart' },
-                    { key: 'donut', label: 'Donut Chart' },
-                    { key: 'sankey', label: 'Sankey Flow' },
-                    { key: 'heatmap', label: 'Heat Map' },
+                    { key: 'line', label: '📈 Line Chart', desc: 'Animated growth lines' },
+                    { key: 'bar', label: '📊 Bar Chart', desc: 'Growing bars with counters' },
+                    { key: 'donut', label: '🍩 Donut Chart', desc: 'Liquid morphing effects' },
+                    { key: 'sankey', label: '🌊 Sankey Flow', desc: 'Money flow visualization' },
+                    { key: 'heatmap', label: '🔥 Heat Map', desc: 'Spending intensity map' },
+                    { key: 'treemap', label: '🌳 TreeMap', desc: 'Hierarchical categories' },
                   ].map((chart) => (
                     <motion.button
                       key={chart.key}
-                      className={`px-4 py-2 rounded-xl transition-all ${
+                      className={`px-4 py-2 rounded-xl transition-all text-center ${
                         selectedChart === chart.key
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white/10 text-gray-400 hover:text-white'
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                          : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
                       }`}
                       onClick={() => setSelectedChart(chart.key as any)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {chart.label}
+                      <div className="font-medium text-sm">{chart.label}</div>
+                      <div className="text-xs opacity-75">{chart.desc}</div>
                     </motion.button>
                   ))}
                 </div>
@@ -480,6 +483,9 @@ export default function BudgetPage() {
                         showTooltip={true}
                         showLegend={true}
                         animated={true}
+                        realTimeData={false}
+                        enableZoom={true}
+                        enablePan={true}
                       />
                     </motion.div>
                   )}
@@ -495,7 +501,10 @@ export default function BudgetPage() {
                         data={mockBarChartData}
                         showTargets={true}
                         showAnimation={true}
-                        orientation="horizontal"
+                        orientation="vertical"
+                        showComparison={false}
+                        animateValues={true}
+                        staggerDelay={0.1}
                       />
                     </motion.div>
                   )}
@@ -523,13 +532,28 @@ export default function BudgetPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                     >
-                      <SankeyDiagram 
-                        nodes={mockSankeyData.nodes}
-                        links={mockSankeyData.links}
+                      <SankeyFlowChart 
+                        nodes={[
+                          { id: 'salary', name: 'Salary', value: 5500, level: 0, color: '#10b981', icon: DollarSign, category: 'source' },
+                          { id: 'freelance', name: 'Freelance', value: 800, level: 0, color: '#059669', icon: Zap, category: 'source' },
+                          { id: 'housing', name: 'Housing', value: 1850, level: 1, color: '#3b82f6', icon: Home, category: 'destination' },
+                          { id: 'food', name: 'Food', value: 720, level: 1, color: '#f59e0b', icon: Utensils, category: 'destination' },
+                          { id: 'transport', name: 'Transport', value: 650, level: 1, color: '#10b981', icon: Car, category: 'destination' },
+                          { id: 'savings', name: 'Savings', value: 800, level: 1, color: '#06b6d4', icon: Target, category: 'destination' },
+                          { id: 'investment', name: 'Investment', value: 500, level: 1, color: '#8b5cf6', icon: TrendingUp, category: 'destination' },
+                        ]}
+                        links={[
+                          { source: 'salary', target: 'housing', value: 1850 },
+                          { source: 'salary', target: 'food', value: 600 },
+                          { source: 'salary', target: 'transport', value: 650 },
+                          { source: 'salary', target: 'savings', value: 800 },
+                          { source: 'freelance', target: 'food', value: 120 },
+                          { source: 'freelance', target: 'investment', value: 500 },
+                        ]}
                         width={800}
                         height={500}
                         animated={true}
-                        showValues={true}
+                        showLabels={true}
                       />
                     </motion.div>
                   )}
@@ -549,6 +573,31 @@ export default function BudgetPage() {
                       />
                     </motion.div>
                   )}
+
+                  {selectedChart === 'treemap' && (
+                    <motion.div
+                      key="treemap"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                    >
+                      <SpendingTreeMap 
+                        data={[
+                          { id: '1', name: 'Housing', value: 1850, color: '#3b82f6', change: 5.2, category: 'Fixed' },
+                          { id: '2', name: 'Food', value: 720, color: '#f59e0b', change: -2.1, category: 'Variable' },
+                          { id: '3', name: 'Transport', value: 650, color: '#10b981', change: 8.7, category: 'Variable' },
+                          { id: '4', name: 'Entertainment', value: 180, color: '#8b5cf6', change: 15.3, category: 'Discretionary' },
+                          { id: '5', name: 'Healthcare', value: 200, color: '#ef4444', change: -5.8, category: 'Variable' },
+                          { id: '6', name: 'Savings', value: 800, color: '#06b6d4', change: 12.4, category: 'Fixed' },
+                        ]}
+                        width={800}
+                        height={500}
+                        animated={true}
+                        showLabels={true}
+                        showTooltips={true}
+                      />
+                    </motion.div>
+                  )}
                 </AnimatePresence>
               </motion.div>
             )}
@@ -563,13 +612,22 @@ export default function BudgetPage() {
                 className="space-y-8"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <SankeyDiagram 
-                    nodes={mockSankeyData.nodes}
-                    links={mockSankeyData.links}
+                  <SankeyFlowChart 
+                    nodes={[
+                      { id: 'salary', name: 'Salary', value: 5500, level: 0, color: '#10b981', icon: DollarSign, category: 'source' },
+                      { id: 'housing', name: 'Housing', value: 1850, level: 1, color: '#3b82f6', icon: Home, category: 'destination' },
+                      { id: 'food', name: 'Food', value: 720, level: 1, color: '#f59e0b', icon: Utensils, category: 'destination' },
+                      { id: 'savings', name: 'Savings', value: 800, level: 1, color: '#06b6d4', icon: Target, category: 'destination' },
+                    ]}
+                    links={[
+                      { source: 'salary', target: 'housing', value: 1850 },
+                      { source: 'salary', target: 'food', value: 720 },
+                      { source: 'salary', target: 'savings', value: 800 },
+                    ]}
                     width={600}
                     height={400}
                     animated={true}
-                    showValues={true}
+                    showLabels={true}
                   />
                   <div className="space-y-4">
                     <SavingsPlant 

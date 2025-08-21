@@ -7,6 +7,7 @@ import MagneticCursor from '@/components/ui/MagneticCursor';
 import PageLayout from '@/components/layout/PageLayout';
 import ConstellationMap from '@/components/investments/ConstellationMap';
 import SectorPieChart from '@/components/investments/SectorPieChart';
+import Portfolio3DChart from '@/components/investments/Portfolio3DChart';
 import CorrelationMatrix from '@/components/investments/CorrelationMatrix';
 import { PerformanceSparkline, AnimatedValue } from '@/components/investments/Sparkline';
 import { 
@@ -155,7 +156,7 @@ const mockCorrelations = [
 ];
 
 export default function InvestmentsPage() {
-  const [activeView, setActiveView] = useState<'portfolio' | 'sectors' | 'correlations'>('portfolio');
+  const [activeView, setActiveView] = useState<'portfolio' | 'sectors' | 'correlations' | '3d-portfolio'>('portfolio');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [portfolioValue, setPortfolioValue] = useState(0);
   const [totalGain, setTotalGain] = useState(0);
@@ -300,6 +301,7 @@ export default function InvestmentsPage() {
             {[
               { key: 'portfolio', label: 'Portfolio Universe', icon: Grid3X3 },
               { key: 'sectors', label: 'Sector Analysis', icon: PieChart },
+              { key: '3d-portfolio', label: '🎯 3D Portfolio', icon: Eye },
               { key: 'correlations', label: 'Correlation Matrix', icon: Activity },
             ].map((view) => {
               const Icon = view.icon;
@@ -348,6 +350,33 @@ export default function InvestmentsPage() {
                 className="flex justify-center"
               >
                 <SectorPieChart data={mockSectorData} />
+              </motion.div>
+            )}
+
+            {activeView === '3d-portfolio' && (
+              <motion.div
+                key="3d-portfolio"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Portfolio3DChart 
+                  data={mockHoldings.map(holding => ({
+                    id: holding.id,
+                    name: holding.symbol,
+                    value: holding.value,
+                    percentage: (holding.value / portfolioValue) * 100,
+                    change: holding.changePercent,
+                    color: mockSectorData.find(s => s.sector === holding.sector)?.color || '#3b82f6',
+                    category: holding.sector,
+                    volatility: Math.abs(holding.changePercent) / 100
+                  }))}
+                  width={900}
+                  height={600}
+                  showLabels={true}
+                  animated={true}
+                />
               </motion.div>
             )}
 
