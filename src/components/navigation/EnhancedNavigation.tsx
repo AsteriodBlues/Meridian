@@ -22,7 +22,12 @@ import {
   Shield,
   ArrowRight,
   Sprout,
-  Brain
+  Brain,
+  Bot,
+  Car,
+  Eye,
+  Clock,
+  FileText
 } from 'lucide-react';
 
 // Auth Components
@@ -82,6 +87,17 @@ const DesktopNavigation = () => {
       ]
     },
     { 
+      name: 'Advisor', 
+      icon: Bot,
+      dropdown: [
+        { name: 'Real-Time Advisor Hub', href: '/advisor', icon: Bot, description: 'AI-powered decision intelligence' },
+        { name: 'Buy vs Lease Calculator', href: '/advisor/buy-vs-lease', icon: Car, description: 'Car journey simulator' },
+        { name: 'Warranty Oracle', href: '/advisor/warranty-oracle', icon: Eye, description: 'Crystal ball predictions' },
+        { name: 'Rate Navigator', href: '/advisor/rate-navigator', icon: TrendingUp, description: 'Interest rate rapids' },
+        { name: 'Timing Oracle', href: '/advisor/timing-oracle', icon: Clock, description: 'Market time machine' }
+      ]
+    },
+    { 
       name: 'Banking', 
       icon: CreditCard,
       dropdown: [
@@ -111,6 +127,10 @@ const DesktopNavigation = () => {
     if (itemName === 'Wealth' || href?.includes('/investments') || href?.includes('/realestate') || href?.includes('/assets-integration') || href?.includes('/garden') || href?.includes('/cashflow')) {
       return 'from-emerald-500/40 via-teal-500/35 to-emerald-500/40';
     }
+    // Advisor section - purple/pink (AI/magic theme)
+    if (itemName === 'Advisor' || href?.includes('/advisor')) {
+      return 'from-purple-500/40 via-pink-500/35 to-purple-500/40';
+    }
     // Banking section - cyan/sky (trust/security theme)
     if (itemName === 'Banking' || href?.includes('/transactions') || href?.includes('/budget') || href?.includes('/credit') || href?.includes('/currency')) {
       return 'from-cyan-500/40 via-sky-500/35 to-cyan-500/40';
@@ -128,6 +148,11 @@ const DesktopNavigation = () => {
     { name: 'Investment Portfolio', type: 'page', href: '/investments' },
     { name: 'Cash Flow Forecasting', type: 'page', href: '/cashflow' },
     { name: 'Money Garden', type: 'page', href: '/garden' },
+    { name: 'Real-Time Advisor Hub', type: 'page', href: '/advisor' },
+    { name: 'Buy vs Lease Calculator', type: 'advisor', href: '/advisor/buy-vs-lease' },
+    { name: 'Warranty Oracle', type: 'advisor', href: '/advisor/warranty-oracle' },
+    { name: 'Rate Navigator', type: 'advisor', href: '/advisor/rate-navigator' },
+    { name: 'Timing Oracle', type: 'advisor', href: '/advisor/timing-oracle' },
     { name: 'Transaction History', type: 'page', href: '/transactions' },
     { name: 'Budget Management', type: 'page', href: '/budget' },
     { name: 'Credit Monitoring', type: 'page', href: '/credit' },
@@ -234,6 +259,7 @@ const DesktopNavigation = () => {
               <div className={`p-2 rounded-xl bg-gradient-to-r ${getBreathingColors(item.name).replace('/40', '/30').replace('/35', '/25')}`}>
                 <item.icon className={`w-5 h-5 ${
                   item.name === 'Wealth' ? 'text-emerald-400' :
+                  item.name === 'Advisor' ? 'text-purple-400' :
                   item.name === 'Banking' ? 'text-cyan-400' :
                   item.name === 'Planning' ? 'text-amber-400' :
                   'text-blue-400'
@@ -243,6 +269,7 @@ const DesktopNavigation = () => {
                 <h3 className="text-white font-semibold text-lg">{item.name}</h3>
                 <p className="text-gray-400 text-sm">
                   {item.name === 'Wealth' && 'Grow and manage your wealth'}
+                  {item.name === 'Advisor' && 'AI-powered decision intelligence'}
                   {item.name === 'Banking' && 'Everyday financial management'}
                   {item.name === 'Planning' && 'Long-term financial planning'}
                 </p>
@@ -266,6 +293,7 @@ const DesktopNavigation = () => {
                   <div className={`p-2 rounded-lg bg-gradient-to-r ${getBreathingColors(item.name, dropItem.href).replace('/40', '/20').replace('/35', '/20')} transition-all duration-300`}>
                     <dropItem.icon className={`w-5 h-5 transition-colors ${
                       item.name === 'Wealth' ? 'text-emerald-400 group-hover:text-emerald-300' :
+                      item.name === 'Advisor' ? 'text-purple-400 group-hover:text-purple-300' :
                       item.name === 'Banking' ? 'text-cyan-400 group-hover:text-cyan-300' :
                       item.name === 'Planning' ? 'text-amber-400 group-hover:text-amber-300' :
                       'text-blue-400 group-hover:text-blue-300'
@@ -443,8 +471,8 @@ const MobileNavigation = () => {
   const tabs = [
     { name: 'Home', href: '/dashboard', icon: Home, index: 0 },
     { name: 'Wealth', href: '/investments', icon: TrendingUp, index: 1 },
-    { name: 'Bank', href: '/transactions', icon: CreditCard, index: 2 },
-    { name: 'Budget', href: '/budget', icon: PieChart, index: 3 },
+    { name: 'Advisor', href: '/advisor', icon: Bot, index: 2 },
+    { name: 'Bank', href: '/transactions', icon: CreditCard, index: 3 },
     { name: 'More', href: '/tax-reports', icon: Settings, index: 4 }
   ];
 
@@ -546,6 +574,7 @@ const MobileMenu = () => {
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Investments', href: '/investments', icon: TrendingUp },
+    { name: 'Real-Time Advisor', href: '/advisor', icon: Bot },
     { name: 'Transactions', href: '/transactions', icon: CreditCard },
     { name: 'Budget', href: '/budget', icon: PieChart },
     { name: 'Credit', href: '/credit', icon: Shield },
