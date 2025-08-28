@@ -21,7 +21,8 @@ import {
   Target,
   Shield,
   ArrowRight,
-  Sprout
+  Sprout,
+  Brain
 } from 'lucide-react';
 
 // Auth Components
@@ -74,6 +75,7 @@ const DesktopNavigation = () => {
       icon: TrendingUp,
       dropdown: [
         { name: 'Investments', href: '/investments', icon: TrendingUp, description: 'Portfolio & market analysis' },
+        { name: 'Cash Flow Forecasting', href: '/cashflow', icon: Brain, description: 'AI-powered predictions & scenarios' },
         { name: 'Real Estate', href: '/realestate', icon: Target, description: 'Property investments' },
         { name: 'Assets & Integration', href: '/assets-integration', icon: Zap, description: 'Connected accounts' },
         { name: 'Money Garden', href: '/garden', icon: Sprout, description: 'Visualize your financial growth' }
@@ -106,7 +108,7 @@ const DesktopNavigation = () => {
       return 'from-blue-500/40 via-purple-500/35 to-blue-500/40';
     }
     // Wealth section - emerald/teal (growth theme)
-    if (itemName === 'Wealth' || href?.includes('/investments') || href?.includes('/realestate') || href?.includes('/assets-integration') || href?.includes('/garden')) {
+    if (itemName === 'Wealth' || href?.includes('/investments') || href?.includes('/realestate') || href?.includes('/assets-integration') || href?.includes('/garden') || href?.includes('/cashflow')) {
       return 'from-emerald-500/40 via-teal-500/35 to-emerald-500/40';
     }
     // Banking section - cyan/sky (trust/security theme)
@@ -124,6 +126,7 @@ const DesktopNavigation = () => {
   const mockSearchResults = [
     { name: 'Dashboard Overview', type: 'page', href: '/dashboard' },
     { name: 'Investment Portfolio', type: 'page', href: '/investments' },
+    { name: 'Cash Flow Forecasting', type: 'page', href: '/cashflow' },
     { name: 'Money Garden', type: 'page', href: '/garden' },
     { name: 'Transaction History', type: 'page', href: '/transactions' },
     { name: 'Budget Management', type: 'page', href: '/budget' },
