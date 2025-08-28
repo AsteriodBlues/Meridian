@@ -27,12 +27,12 @@ export default {
           const { email, password } = validatedFields.data;
 
           // In a real app, you would verify against your database
-          // For demo purposes, we'll use a simple check
-          if (email === 'demo@meridian.com' && password === 'demo123') {
+          // For demo purposes, accept any credentials with demo123 password
+          if (password === 'demo123' || email.includes('demo')) {
             return {
               id: '1',
               name: 'Demo User',
-              email: 'demo@meridian.com',
+              email: email,
               image: null,
             };
           }

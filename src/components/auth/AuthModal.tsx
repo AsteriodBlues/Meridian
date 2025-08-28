@@ -38,6 +38,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
       if (result?.error) {
         console.error('Auth error:', result.error)
+        alert(`Login failed: ${result.error}`)
         setIsLoading(false)
         return
       }
@@ -47,7 +48,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         setStep('2fa')
       } else {
         setStep('success')
-        setTimeout(() => onOpenChange(false), 2000)
+        setTimeout(() => {
+          onOpenChange(false)
+          window.location.href = '/dashboard'
+        }, 2000)
       }
     } catch (error) {
       console.error('Auth error:', error)
@@ -72,7 +76,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       console.log('Verifying 2FA code:', code)
       await new Promise(resolve => setTimeout(resolve, 1500))
       setStep('success')
-      setTimeout(() => onOpenChange(false), 2000)
+      setTimeout(() => {
+        onOpenChange(false)
+        window.location.href = '/dashboard'
+      }, 2000)
     } catch (error) {
       console.error('2FA error:', error)
     } finally {
@@ -93,12 +100,13 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 exit={{ opacity: 0 }}
               />
             </Dialog.Overlay>
-            <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 focus:outline-none">
+            <Dialog.Content className="fixed inset-0 z-50 flex items-center justify-center p-4 focus:outline-none">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ type: 'spring', duration: 0.5 }}
+                className="w-full max-w-md"
               >
                 <GlassmorphicCard className="relative">
                   {/* Close Button */}
@@ -177,7 +185,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                               className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-10 text-white placeholder-gray-500 focus:outline-none focus:border-wisdom-500 transition-colors"
-                              placeholder="you@example.com"
+                              placeholder="demo@example.com"
                               required
                               disabled={isLoading}
                             />
@@ -196,7 +204,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
                               className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-10 text-white placeholder-gray-500 focus:outline-none focus:border-wisdom-500 transition-colors"
-                              placeholder="••••••••"
+                              placeholder="demo123"
                               required
                               disabled={isLoading}
                             />
