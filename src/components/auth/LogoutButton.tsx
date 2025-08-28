@@ -65,6 +65,9 @@ export default function LogoutButton({ className = '', variant = 'default' }: Lo
             )}
           </AnimatePresence>
           
+          {/* Breathing glow effect */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-500/10 via-pink-500/10 to-red-500/10 animate-pulse -z-10 blur-sm" />
+          
           {/* Sparkle effects on hover */}
           <motion.div
             className="absolute inset-0 pointer-events-none"
@@ -178,6 +181,9 @@ export default function LogoutButton({ className = '', variant = 'default' }: Lo
       whileTap={{ scale: 0.95 }}
       disabled={isLoggingOut}
     >
+      {/* Breathing glow effect */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/15 via-pink-500/15 to-red-500/15 animate-pulse -z-10 blur-sm" />
+      
       {/* Background animation */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-pink-500/20"

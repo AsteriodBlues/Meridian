@@ -353,19 +353,21 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       <div className="grid grid-cols-2 gap-4">
                         <button 
                           onClick={() => handleSocialSignIn('google')}
-                          className="flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 py-3 hover:bg-white/10 transition-colors"
+                          className="relative flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 py-3 hover:bg-white/10 transition-colors overflow-hidden"
                           disabled={isLoading}
                         >
-                          <Chrome className="h-4 w-4" />
-                          <span className="text-sm">Google</span>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 via-white/5 to-blue-500/10 animate-pulse -z-10 blur-sm" />
+                          <Chrome className="h-4 w-4 relative z-10" />
+                          <span className="text-sm relative z-10">Google</span>
                         </button>
                         <button 
                           onClick={() => handleSocialSignIn('github')}
-                          className="flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 py-3 hover:bg-white/10 transition-colors"
+                          className="relative flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 py-3 hover:bg-white/10 transition-colors overflow-hidden"
                           disabled={isLoading}
                         >
-                          <Github className="h-4 w-4" />
-                          <span className="text-sm">GitHub</span>
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/10 via-white/5 to-gray-500/10 animate-pulse -z-10 blur-sm" />
+                          <Github className="h-4 w-4 relative z-10" />
+                          <span className="text-sm relative z-10">GitHub</span>
                         </button>
                       </div>
 

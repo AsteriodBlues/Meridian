@@ -107,7 +107,7 @@ export default function EnvelopeSystem({
         animate={{ opacity: 1, y: 0 }}
       >
         <motion.button
-          className={`px-4 py-2 rounded-xl transition-all ${
+          className={`relative px-4 py-2 rounded-xl transition-all overflow-hidden ${
             transferMode 
               ? 'bg-blue-500 text-white shadow-lg' 
               : 'bg-white/10 text-gray-400 hover:text-white'
@@ -116,15 +116,17 @@ export default function EnvelopeSystem({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ArrowUpRight className="w-4 h-4" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/20 via-white/10 to-blue-500/20 animate-pulse -z-10 blur-sm" />
+          <ArrowUpRight className="w-4 h-4 relative z-10" />
         </motion.button>
         
         <motion.button
-          className="px-4 py-2 rounded-xl bg-white/10 text-gray-400 hover:text-white transition-all"
+          className="relative px-4 py-2 rounded-xl bg-white/10 text-gray-400 hover:text-white transition-all overflow-hidden"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <RotateCcw className="w-4 h-4" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gray-500/20 via-white/10 to-gray-500/20 animate-pulse -z-10 blur-sm" />
+          <RotateCcw className="w-4 h-4 relative z-10" />
         </motion.button>
       </motion.div>
 

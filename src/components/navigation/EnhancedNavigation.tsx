@@ -97,6 +97,28 @@ const DesktopNavigation = () => {
     }
   ];
 
+  // Function to get breathing colors for each navigation section
+  const getBreathingColors = (itemName: string, href?: string) => {
+    // Dashboard keeps the original blue-purple
+    if (itemName === 'Dashboard' || href === '/dashboard') {
+      return 'from-blue-500/25 via-purple-500/20 to-blue-500/25';
+    }
+    // Wealth section - emerald/teal (growth theme)
+    if (itemName === 'Wealth' || href?.includes('/investments') || href?.includes('/realestate') || href?.includes('/assets-integration')) {
+      return 'from-emerald-500/25 via-teal-500/20 to-emerald-500/25';
+    }
+    // Banking section - cyan/sky (trust/security theme)
+    if (itemName === 'Banking' || href?.includes('/transactions') || href?.includes('/budget') || href?.includes('/credit') || href?.includes('/currency')) {
+      return 'from-cyan-500/25 via-sky-500/20 to-cyan-500/25';
+    }
+    // Planning section - amber/orange (wisdom theme)
+    if (itemName === 'Planning' || href?.includes('/tax-reports') || href?.includes('/family')) {
+      return 'from-amber-500/25 via-orange-500/20 to-amber-500/25';
+    }
+    // Default fallback
+    return 'from-blue-500/25 via-purple-500/20 to-blue-500/25';
+  };
+
   const mockSearchResults = [
     { name: 'Dashboard Overview', type: 'page', href: '/dashboard' },
     { name: 'Investment Portfolio', type: 'page', href: '/investments' },
@@ -162,15 +184,13 @@ const DesktopNavigation = () => {
         <item.icon className="w-4 h-4" />
         <span>{item.name}</span>
         
-        {/* Active state glow */}
-        {pathname === item.href && (
-          <motion.div
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-lg -z-10"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1.2, opacity: 1 }}
-            transition={{ duration: 0.6, repeat: Infinity, repeatType: 'reverse' }}
-          />
+        {/* Active state breathing glow */}
+        {(pathname === item.href || (item.dropdown && item.dropdown.some(drop => pathname === drop.href))) && (
+          <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${getBreathingColors(item.name, pathname)} animate-pulse -z-10 blur-sm`} />
         )}
+        
+        {/* Hover breathing glow */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 via-blue-500/5 to-white/5 animate-pulse -z-10 blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300" />
         
         {/* Hover underline */}
         <motion.div
@@ -205,8 +225,13 @@ const DesktopNavigation = () => {
             >
             {/* Category Header */}
             <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20">
-                <item.icon className="w-5 h-5 text-blue-400" />
+              <div className={`p-2 rounded-xl bg-gradient-to-r ${getBreathingColors(item.name).replace('/25', '/20').replace('/20', '/20')}`}>
+                <item.icon className={`w-5 h-5 ${
+                  item.name === 'Wealth' ? 'text-emerald-400' :
+                  item.name === 'Banking' ? 'text-cyan-400' :
+                  item.name === 'Planning' ? 'text-amber-400' :
+                  'text-blue-400'
+                }`} />
               </div>
               <div>
                 <h3 className="text-white font-semibold text-lg">{item.name}</h3>
@@ -224,14 +249,21 @@ const DesktopNavigation = () => {
                 <motion.a
                   key={dropItem.name}
                   href={dropItem.href}
-                  className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 group border border-transparent hover:border-white/10"
+                  className="relative flex items-start gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all duration-300 group border border-transparent hover:border-white/10 overflow-hidden"
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4, delay: idx * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
                   whileHover={{ x: 8 }}
                 >
-                  <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-all duration-300">
-                    <dropItem.icon className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                  {/* Breathing glow effect on hover */}
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${getBreathingColors(item.name, dropItem.href).replace('/25', '/10').replace('/20', '/8')} animate-pulse -z-10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${getBreathingColors(item.name, dropItem.href).replace('/25', '/10').replace('/20', '/10')} transition-all duration-300`}>
+                    <dropItem.icon className={`w-5 h-5 transition-colors ${
+                      item.name === 'Wealth' ? 'text-emerald-400 group-hover:text-emerald-300' :
+                      item.name === 'Banking' ? 'text-cyan-400 group-hover:text-cyan-300' :
+                      item.name === 'Planning' ? 'text-amber-400 group-hover:text-amber-300' :
+                      'text-blue-400 group-hover:text-blue-300'
+                    }`} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -285,12 +317,13 @@ const DesktopNavigation = () => {
             {/* Search */}
             <div className="relative">
               <motion.button
-                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="relative p-2 rounded-full hover:bg-white/10 transition-colors overflow-hidden"
                 onClick={() => setShowSearch(!showSearch)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Search className="w-5 h-5 text-gray-300" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-500/15 via-white/10 to-gray-500/15 animate-pulse -z-10 blur-sm" />
+                <Search className="w-5 h-5 text-gray-300 relative z-10" />
               </motion.button>
 
               <AnimatePresence>
@@ -316,15 +349,16 @@ const DesktopNavigation = () => {
                           <motion.a
                             key={result.name}
                             href={result.href}
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                            className="relative flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors overflow-hidden group"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: idx * 0.05 }}
                           >
-                            <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center">
+                            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/10 via-white/5 to-blue-500/10 animate-pulse -z-10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="w-6 h-6 rounded bg-blue-500/20 flex items-center justify-center relative z-10">
                               <Search className="w-3 h-3 text-blue-400" />
                             </div>
-                            <div>
+                            <div className="relative z-10">
                               <div className="text-white text-sm font-medium">{result.name}</div>
                               <div className="text-gray-400 text-xs">{result.type}</div>
                             </div>
@@ -339,21 +373,23 @@ const DesktopNavigation = () => {
 
             {/* Notifications */}
             <motion.button
-              className="relative p-2 rounded-full hover:bg-white/10 transition-colors"
+              className="relative p-2 rounded-full hover:bg-white/10 transition-colors overflow-hidden"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <Bell className="w-5 h-5 text-gray-300" />
-              <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-500/15 via-orange-500/10 to-red-500/15 animate-pulse -z-10 blur-sm" />
+              <Bell className="w-5 h-5 text-gray-300 relative z-10" />
+              <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full z-20" />
             </motion.button>
 
             {/* User Menu */}
             {session ? (
               <div className="flex items-center gap-3">
                 <motion.div
-                  className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10"
+                  className="relative flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10 overflow-hidden"
                   whileHover={{ scale: 1.02 }}
                 >
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-500/15 via-blue-500/10 to-green-500/15 animate-pulse -z-10 blur-sm" />
                   {session.user?.image ? (
                     <img
                       src={session.user.image}
@@ -363,7 +399,7 @@ const DesktopNavigation = () => {
                   ) : (
                     <User className="w-5 h-5 text-gray-300" />
                   )}
-                  <span className="text-sm text-gray-300">
+                  <span className="text-sm text-gray-300 relative z-10">
                     {session.user?.name || 'User'}
                   </span>
                 </motion.div>

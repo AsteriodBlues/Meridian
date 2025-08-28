@@ -222,6 +222,9 @@ export default function FloatingActionMenu({ className = '' }: FloatingActionMen
                       }
                     }}
                   >
+                    {/* Breathing glow effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/10 via-white/5 to-white/10 animate-pulse -z-10 blur-sm" />
+                    
                     {/* Ripple effect */}
                     <motion.div
                       className="absolute inset-0 rounded-full"
@@ -279,6 +282,9 @@ export default function FloatingActionMenu({ className = '' }: FloatingActionMen
         dragElastic={0.1}
         dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
       >
+        {/* Breathing glow effect */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-teal-500/20 animate-pulse -z-10 blur-sm" />
+        
         {/* Animated background */}
         <motion.div
           className="absolute inset-0 rounded-full"

@@ -75,11 +75,22 @@ export function MagneticButton({
     >
       <span className="relative z-10">{children}</span>
       {variant === 'primary' && (
-        <motion.div
-          className="absolute inset-0 rounded-xl bg-gradient-to-r from-wisdom-400 to-wisdom-600 opacity-0 blur-xl"
-          animate={{ opacity: position.x || position.y ? 0.3 : 0 }}
-          transition={{ duration: 0.2 }}
-        />
+        <>
+          {/* Magnetic hover glow */}
+          <motion.div
+            className="absolute inset-0 rounded-xl bg-gradient-to-r from-wisdom-400 to-wisdom-600 opacity-0 blur-xl"
+            animate={{ opacity: position.x || position.y ? 0.3 : 0 }}
+            transition={{ duration: 0.2 }}
+          />
+          {/* Breathing glow effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-wisdom-500/30 via-trust-500/30 to-growth-500/30 animate-pulse -z-10 blur-sm" />
+        </>
+      )}
+      {variant === 'secondary' && (
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-cyan-500/10 animate-pulse -z-10 blur-sm opacity-50" />
+      )}
+      {variant === 'ghost' && (
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/5 via-white/3 to-white/5 animate-pulse -z-10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       )}
     </motion.button>
   )

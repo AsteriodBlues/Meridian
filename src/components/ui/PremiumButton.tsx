@@ -84,6 +84,9 @@ export default function PremiumButton({
         transition={{ duration: 0.3 }}
       />
       
+      {/* Breathing glow effect */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-wisdom-500/20 via-trust-500/20 to-growth-500/20 animate-pulse -z-10 blur-sm opacity-60" />
+      
       {/* Content */}
       <span className="relative z-10">{children}</span>
     </motion.button>

@@ -373,29 +373,31 @@ export default function RealEstatePage() {
               <div className="flex bg-white/10 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`relative p-2 rounded-lg transition-all overflow-hidden ${
                     viewMode === 'grid' 
                       ? 'bg-blue-500 text-white' 
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <Grid3X3 className="w-4 h-4" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/20 via-purple-500/15 to-blue-500/20 animate-pulse -z-10 blur-sm" />
+                  <Grid3X3 className="w-4 h-4 relative z-10" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`relative p-2 rounded-lg transition-all overflow-hidden ${
                     viewMode === 'list' 
                       ? 'bg-blue-500 text-white' 
                       : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  <List className="w-4 h-4" />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-500/20 via-purple-500/15 to-blue-500/20 animate-pulse -z-10 blur-sm" />
+                  <List className="w-4 h-4 relative z-10" />
                 </button>
               </div>
 
               {/* Analytics Toggle */}
               <motion.button
-                className={`px-4 py-2 rounded-xl transition-all ${
+                className={`relative px-4 py-2 rounded-xl transition-all overflow-hidden ${
                   showAnalytics
                     ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white'
                     : 'bg-white/10 text-gray-400 hover:text-white border border-white/20'
@@ -404,7 +406,8 @@ export default function RealEstatePage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Analytics
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-pink-500/15 to-purple-500/20 animate-pulse -z-10 blur-sm" />
+                <span className="relative z-10">Analytics</span>
               </motion.button>
             </div>
           </motion.div>

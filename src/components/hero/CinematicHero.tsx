@@ -324,6 +324,9 @@ const LiquidCTA = ({
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
+      {/* Breathing glow effect */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 animate-pulse -z-10 blur-sm" />
+      
       {/* Liquid fill background */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
