@@ -101,22 +101,22 @@ const DesktopNavigation = () => {
   const getBreathingColors = (itemName: string, href?: string) => {
     // Dashboard keeps the original blue-purple
     if (itemName === 'Dashboard' || href === '/dashboard') {
-      return 'from-blue-500/25 via-purple-500/20 to-blue-500/25';
+      return 'from-blue-500/40 via-purple-500/35 to-blue-500/40';
     }
     // Wealth section - emerald/teal (growth theme)
     if (itemName === 'Wealth' || href?.includes('/investments') || href?.includes('/realestate') || href?.includes('/assets-integration')) {
-      return 'from-emerald-500/25 via-teal-500/20 to-emerald-500/25';
+      return 'from-emerald-500/40 via-teal-500/35 to-emerald-500/40';
     }
     // Banking section - cyan/sky (trust/security theme)
     if (itemName === 'Banking' || href?.includes('/transactions') || href?.includes('/budget') || href?.includes('/credit') || href?.includes('/currency')) {
-      return 'from-cyan-500/25 via-sky-500/20 to-cyan-500/25';
+      return 'from-cyan-500/40 via-sky-500/35 to-cyan-500/40';
     }
     // Planning section - amber/orange (wisdom theme)
     if (itemName === 'Planning' || href?.includes('/tax-reports') || href?.includes('/family')) {
-      return 'from-amber-500/25 via-orange-500/20 to-amber-500/25';
+      return 'from-amber-500/40 via-orange-500/35 to-amber-500/40';
     }
     // Default fallback
-    return 'from-blue-500/25 via-purple-500/20 to-blue-500/25';
+    return 'from-blue-500/40 via-purple-500/35 to-blue-500/40';
   };
 
   const mockSearchResults = [
@@ -225,7 +225,7 @@ const DesktopNavigation = () => {
             >
             {/* Category Header */}
             <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
-              <div className={`p-2 rounded-xl bg-gradient-to-r ${getBreathingColors(item.name).replace('/25', '/20').replace('/20', '/20')}`}>
+              <div className={`p-2 rounded-xl bg-gradient-to-r ${getBreathingColors(item.name).replace('/40', '/30').replace('/35', '/25')}`}>
                 <item.icon className={`w-5 h-5 ${
                   item.name === 'Wealth' ? 'text-emerald-400' :
                   item.name === 'Banking' ? 'text-cyan-400' :
@@ -256,8 +256,8 @@ const DesktopNavigation = () => {
                   whileHover={{ x: 8 }}
                 >
                   {/* Breathing glow effect on hover */}
-                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${getBreathingColors(item.name, dropItem.href).replace('/25', '/10').replace('/20', '/8')} animate-pulse -z-10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${getBreathingColors(item.name, dropItem.href).replace('/25', '/10').replace('/20', '/10')} transition-all duration-300`}>
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${getBreathingColors(item.name, dropItem.href).replace('/40', '/20').replace('/35', '/15')} animate-pulse -z-10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <div className={`p-2 rounded-lg bg-gradient-to-r ${getBreathingColors(item.name, dropItem.href).replace('/40', '/20').replace('/35', '/20')} transition-all duration-300`}>
                     <dropItem.icon className={`w-5 h-5 transition-colors ${
                       item.name === 'Wealth' ? 'text-emerald-400 group-hover:text-emerald-300' :
                       item.name === 'Banking' ? 'text-cyan-400 group-hover:text-cyan-300' :

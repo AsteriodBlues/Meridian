@@ -11,6 +11,7 @@ import {
 
 // Import components
 import PageLayout from '@/components/layout/PageLayout';
+import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import TaxCenter from '@/components/tax/TaxCenter';
 import ReceiptAI from '@/components/tax/ReceiptAI';
@@ -158,7 +159,7 @@ export default function TaxReportsPage() {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+      <TimeBasedBackground>
         <MagneticCursor />
       {/* Header */}
       <div className="relative z-10 p-6">
@@ -652,7 +653,7 @@ export default function TaxReportsPage() {
           />
         ))}
       </div>
-      </div>
+      </TimeBasedBackground>
     </PageLayout>
   );
 }

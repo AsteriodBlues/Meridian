@@ -11,6 +11,7 @@ import {
 
 // Import components
 import PageLayout from '@/components/layout/PageLayout';
+import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import MagneticCursor from '@/components/ui/MagneticCursor';
 import AssetManager from '@/components/assets/AssetManager';
 import MaintenanceTimeline from '@/components/assets/MaintenanceTimeline';
@@ -129,7 +130,7 @@ export default function AssetsIntegrationPage() {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+      <TimeBasedBackground>
         <MagneticCursor />
       {/* Header */}
       <div className="relative z-10 p-6">
@@ -513,7 +514,7 @@ export default function AssetsIntegrationPage() {
           />
         ))}
       </div>
-      </div>
+      </TimeBasedBackground>
     </PageLayout>
   );
 }
