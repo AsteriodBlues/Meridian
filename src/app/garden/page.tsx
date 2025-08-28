@@ -118,10 +118,14 @@ export default function GardenPage() {
     animationSpeed: 1
   });
 
+  const [plants, setPlants] = useState(mockPlants);
+  const [subscriptions, setSubscriptions] = useState(mockSubscriptions);
+  const [transfers, setTransfers] = useState(mockTransfers);
   const [marketCondition, setMarketCondition] = useState<'bull' | 'bear' | 'sideways'>('bull');
   const [monthlyIncome] = useState(7500);
   const [monthlyExpenses] = useState(5200);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Simulate market changes
   useEffect(() => {
@@ -277,6 +281,21 @@ export default function GardenPage() {
 
               <div className="flex gap-2">
                 <motion.button
+                  className={`relative px-4 py-2 rounded-xl border transition-all overflow-hidden ${
+                    isEditMode 
+                      ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' 
+                      : 'bg-white/10 border-white/20 text-gray-300 hover:text-white'
+                  }`}
+                  onClick={() => setIsEditMode(!isEditMode)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/15 via-cyan-500/10 to-blue-500/15 animate-pulse -z-10 blur-sm" />
+                  <Settings className="w-4 h-4 inline mr-2" />
+                  {isEditMode ? 'View Mode' : 'Edit Mode'}
+                </motion.button>
+
+                <motion.button
                   className="relative p-2 rounded-xl border border-white/20 bg-white/10 text-gray-300 hover:text-white transition-all overflow-hidden"
                   onClick={() => setIsFullscreen(!isFullscreen)}
                   whileHover={{ scale: 1.05 }}
@@ -320,12 +339,43 @@ export default function GardenPage() {
               isFullscreen ? 'h-screen rounded-none' : 'h-[70vh]'
             }`}>
               <MoneyGarden
-                plants={mockPlants}
-                recentTransfers={gardenSettings.showBees ? mockTransfers : []}
+                plants={plants}
+                recentTransfers={gardenSettings.showBees ? transfers : []}
                 monthlyIncome={monthlyIncome}
                 monthlyExpenses={monthlyExpenses}
-                unnecessarySubscriptions={gardenSettings.showWeeds ? mockSubscriptions : []}
+                unnecessarySubscriptions={gardenSettings.showWeeds ? subscriptions : []}
                 marketCondition={marketCondition}
+                isEditable={isEditMode}
+                onPlantAdd={(plantData) => {
+                  const newPlant = {
+                    ...plantData,
+                    id: `plant-${Date.now()}`,
+                    growth: (plantData.value / plantData.target) * 100
+                  };
+                  setPlants(prev => [...prev, newPlant]);
+                }}
+                onPlantUpdate={(id, updates) => {
+                  setPlants(prev => prev.map(plant => 
+                    plant.id === id ? { ...plant, ...updates } : plant
+                  ));
+                }}
+                onPlantDelete={(id) => {
+                  setPlants(prev => prev.filter(plant => plant.id !== id));
+                }}
+                onPlantMove={(id, x, y) => {
+                  setPlants(prev => prev.map(plant => 
+                    plant.id === id ? { ...plant, x, y } : plant
+                  ));
+                }}
+                onSubscriptionAdd={(subscription) => {
+                  setSubscriptions(prev => [...prev, subscription]);
+                }}
+                onSubscriptionRemove={(name) => {
+                  setSubscriptions(prev => prev.filter(sub => sub.name !== name));
+                }}
+                onTransferAdd={(transfer) => {
+                  setTransfers(prev => [...prev, transfer]);
+                }}
               />
             </div>
           </motion.div>
@@ -339,7 +389,7 @@ export default function GardenPage() {
               transition={{ delay: 1.2, duration: 0.6 }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockPlants.map((plant, index) => (
+                {plants.map((plant, index) => (
                   <motion.div
                     key={plant.id}
                     className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all"

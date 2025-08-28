@@ -87,6 +87,14 @@ interface MoneyGardenProps {
   monthlyExpenses: number;
   unnecessarySubscriptions: Array<{name: string; cost: number}>;
   marketCondition: 'bull' | 'bear' | 'sideways';
+  onPlantAdd?: (plant: Omit<Plant, 'id'>) => void;
+  onPlantUpdate?: (id: string, updates: Partial<Plant>) => void;
+  onPlantDelete?: (id: string) => void;
+  onPlantMove?: (id: string, x: number, y: number) => void;
+  onSubscriptionAdd?: (subscription: {name: string; cost: number}) => void;
+  onSubscriptionRemove?: (name: string) => void;
+  onTransferAdd?: (transfer: {from: string; to: string; amount: number}) => void;
+  isEditable?: boolean;
 }
 
 const MoneyGarden: React.FC<MoneyGardenProps> = ({
@@ -95,10 +103,31 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
   monthlyIncome,
   monthlyExpenses,
   unnecessarySubscriptions,
-  marketCondition
+  marketCondition,
+  onPlantAdd,
+  onPlantUpdate,
+  onPlantDelete,
+  onPlantMove,
+  onSubscriptionAdd,
+  onSubscriptionRemove,
+  onTransferAdd,
+  isEditable = false
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const frameCountRef = useRef(0);
+  const lastFrameTimeRef = useRef(0);
+  const fpsRef = useRef(60);
+  
+  // Performance optimization: Object pools
+  const particlePoolRef = useRef<Particle[]>([]);
+  const rainPoolRef = useRef<RainDrop[]>([]);
+  
+  // Dirty rectangle tracking for optimized rendering
+  const dirtyRectsRef = useRef<Array<{x: number; y: number; width: number; height: number}>>([]);
+  
+  // RAF throttling for smooth 60fps
+  const targetFrameTime = 1000 / 60; // 60fps target
   
   // Garden state
   const [bees, setBees] = useState<Bee[]>([]);
@@ -118,6 +147,12 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
   const [cameraOffset, setCameraOffset] = useState({ x: 0, y: 0 });
   const [cameraZoom, setCameraZoom] = useState(1);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [selectedPlant, setSelectedPlant] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [hoveredPlant, setHoveredPlant] = useState<string | null>(null);
+  const [showAddPlantModal, setShowAddPlantModal] = useState(false);
+  const [addPlantPosition, setAddPlantPosition] = useState({ x: 0, y: 0 });
 
   // Initialize garden ecosystem
   useEffect(() => {
@@ -229,22 +264,106 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     return Math.max(0, Math.min(100, baseGrowth + marketBonus + seasonBonus + droughtPenalty));
   }, [weather]);
 
-  // Mouse tracking for interactive effects
+  // Interactive mouse and touch handling
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const getCanvasPosition = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      setMousePos({
-        x: (e.clientX - rect.left) * (canvas.width / rect.width),
-        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+      };
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const pos = getCanvasPosition(e);
+      setMousePos(pos);
+
+      // Check for plant hover
+      const hoveredPlant = plants.find(plant => {
+        const distance = Math.sqrt((pos.x - plant.x) ** 2 + (pos.y - plant.y) ** 2);
+        return distance < 50; // Hover radius
       });
+      setHoveredPlant(hoveredPlant?.id || null);
+
+      // Handle dragging
+      if (isDragging && selectedPlant && onPlantMove && isEditable) {
+        onPlantMove(selectedPlant, pos.x - dragOffset.x, pos.y - dragOffset.y);
+      }
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!isEditable) return;
+      const pos = getCanvasPosition(e);
+
+      // Check if clicking on a plant
+      const clickedPlant = plants.find(plant => {
+        const distance = Math.sqrt((pos.x - plant.x) ** 2 + (pos.y - plant.y) ** 2);
+        return distance < 50;
+      });
+
+      if (clickedPlant) {
+        setSelectedPlant(clickedPlant.id);
+        setIsDragging(true);
+        setDragOffset({
+          x: pos.x - clickedPlant.x,
+          y: pos.y - clickedPlant.y
+        });
+      } else {
+        // Click on empty space - show add plant option
+        setAddPlantPosition(pos);
+        setShowAddPlantModal(true);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    const handleDoubleClick = (e: MouseEvent) => {
+      if (!isEditable) return;
+      const pos = getCanvasPosition(e);
+      
+      const clickedPlant = plants.find(plant => {
+        const distance = Math.sqrt((pos.x - plant.x) ** 2 + (pos.y - plant.y) ** 2);
+        return distance < 50;
+      });
+
+      if (clickedPlant && onPlantDelete) {
+        onPlantDelete(clickedPlant.id);
+      }
     };
 
     canvas.addEventListener('mousemove', handleMouseMove);
-    return () => canvas.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('dblclick', handleDoubleClick);
+
+    // Touch events
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      handleMouseMove(e as any);
+    });
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleMouseDown(e as any);
+    });
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      handleMouseUp();
+    });
+
+    return () => {
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mousedown', handleMouseDown);
+      canvas.removeEventListener('mouseup', handleMouseUp);
+      canvas.removeEventListener('dblclick', handleDoubleClick);
+    };
+  }, [plants, isDragging, selectedPlant, dragOffset, onPlantMove, onPlantDelete, isEditable]);
 
   // Enhanced plant drawing with modern effects
   const drawPlant = useCallback((ctx: CanvasRenderingContext2D, plant: Plant) => {
@@ -253,19 +372,47 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     const x = plant.x + Math.sin(time * 0.002 + plant.x * 0.01) * 2; // Wind sway
     const y = plant.y;
 
-    // Mouse proximity effect
+    // Interactive states
     const mouseDistance = Math.sqrt((mousePos.x - x) ** 2 + (mousePos.y - y) ** 2);
     const proximityEffect = Math.max(0, 1 - mouseDistance / 150);
-    const glowIntensity = proximityEffect * 0.5;
+    const isSelected = selectedPlant === plant.id;
+    const isHovered = hoveredPlant === plant.id;
+    const glowIntensity = proximityEffect * 0.5 + (isSelected ? 0.8 : 0) + (isHovered ? 0.4 : 0);
 
     ctx.save();
 
-    // Glow effect for mouse proximity
-    if (proximityEffect > 0.1) {
-      ctx.shadowColor = `hsl(${120 + growth}, 70%, 50%)`;
-      ctx.shadowBlur = 20 + glowIntensity * 40;
+    // Selection ring
+    if (isSelected && isEditable) {
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.arc(x, y - baseHeight/2, 60, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Hover ring
+    if (isHovered && isEditable && !isSelected) {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y - baseHeight/2, 55, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Enhanced glow effects
+    if (glowIntensity > 0.1) {
+      ctx.shadowColor = isSelected ? '#3b82f6' : isHovered ? '#ffffff' : `hsl(${120 + growth}, 70%, 50%)`;
+      ctx.shadowBlur = 15 + glowIntensity * 30;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
+    }
+
+    // Dragging effect
+    if (isDragging && isSelected) {
+      ctx.globalAlpha = 0.8;
+      ctx.scale(1.1, 1.1);
     }
 
     switch (plant.species) {
@@ -759,8 +906,47 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     ctx.restore();
   }, []);
 
-  // Main animation loop
+  // Performance monitoring
+  const updateFPS = useCallback((currentTime: number) => {
+    frameCountRef.current++;
+    if (currentTime - lastFrameTimeRef.current >= 1000) {
+      fpsRef.current = frameCountRef.current;
+      frameCountRef.current = 0;
+      lastFrameTimeRef.current = currentTime;
+    }
+  }, []);
+
+  // Optimized object pool management
+  const getParticleFromPool = useCallback((): Particle => {
+    return particlePoolRef.current.pop() || {
+      id: '',
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      life: 0,
+      maxLife: 0,
+      size: 0,
+      color: '',
+      type: 'glow'
+    };
+  }, []);
+
+  const returnParticleToPool = useCallback((particle: Particle) => {
+    if (particlePoolRef.current.length < 200) { // Max pool size
+      particlePoolRef.current.push(particle);
+    }
+  }, []);
+
+  // Main animation loop with performance optimizations
   const animate = useCallback((currentTime: number) => {
+    // FPS throttling for consistent performance
+    if (currentTime - lastFrameTimeRef.current < targetFrameTime) {
+      animationRef.current = requestAnimationFrame(animate);
+      return;
+    }
+
+    updateFPS(currentTime);
     setTime(currentTime);
     
     const canvas = canvasRef.current;
@@ -768,6 +954,10 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Enable hardware acceleration
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
     // Enhanced cinematic background with depth
     const gradient = ctx.createRadialGradient(
@@ -1008,33 +1198,400 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
         ref={canvasRef}
         width={800}
         height={600}
-        className="w-full h-full"
+        className="w-full h-full cursor-crosshair"
         style={{ imageRendering: 'pixelated' }}
       />
       
-      {/* Garden controls and info overlay */}
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-        <h3 className="font-bold text-green-800 mb-2">🌱 Money Garden</h3>
-        <div className="text-sm text-gray-700 space-y-1">
-          <div>Season: <span className="capitalize font-medium">{weather.season}</span></div>
-          <div>Weather: <span className="capitalize font-medium">{weather.condition}</span></div>
-          <div>Market: <span className="capitalize font-medium">{weather.marketSentiment}</span></div>
-          <div>Active Bees: <span className="font-medium">{bees.length}</span></div>
-          <div>Weeds: <span className="font-medium text-red-600">{weeds.length}</span></div>
+      {/* Modern Garden Status Panel */}
+      <motion.div 
+        className="absolute top-6 left-6 glassmorphic border-white/20 rounded-2xl p-6 shadow-2xl backdrop-blur-2xl"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            >
+              🌱
+            </motion.div>
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-lg">Money Garden</h3>
+            {isEditable && <span className="text-xs text-blue-400 font-medium bg-blue-500/20 px-2 py-1 rounded-full">Interactive Mode</span>}
+          </div>
         </div>
-      </div>
+        
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+              <span className="text-white/80">Season:</span>
+              <span className="capitalize font-semibold text-white">{weather.season}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></div>
+              <span className="text-white/80">Weather:</span>
+              <span className="capitalize font-semibold text-white">{weather.condition}</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></div>
+              <span className="text-white/80">Market:</span>
+              <span className="capitalize font-semibold text-white">{weather.marketSentiment}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+              <span className="text-white/80">Activity:</span>
+              <span className="font-semibold text-white">{bees.length + weeds.length}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* FPS Counter */}
+        <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="text-xs text-white/60">
+            FPS: <span className="font-mono font-bold text-green-400">{fpsRef.current}</span>
+          </div>
+        </div>
+      </motion.div>
 
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-        <h4 className="font-bold text-green-800 mb-2">Legend</h4>
-        <div className="text-xs text-gray-700 space-y-1">
-          <div>🌸 Plants = Your savings & investments</div>
-          <div>🐝 Bees = Money transfers between accounts</div>
-          <div>🌧️ Rain = Income flowing into your garden</div>
-          <div>🥀 Weeds = Unnecessary subscriptions</div>
-          <div>☀️ Weather = Current market conditions</div>
+      {/* Modern Interactive Instructions */}
+      {isEditable && (
+        <motion.div 
+          className="absolute top-6 right-6 glassmorphic border-blue-500/30 rounded-2xl p-6 shadow-2xl backdrop-blur-2xl"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                ✨
+              </motion.div>
+            </div>
+            <h4 className="font-bold text-white text-lg">Interactive Mode</h4>
+          </div>
+          
+          <div className="space-y-3">
+            {[
+              { icon: "🌱", text: "Click empty space to plant", color: "green" },
+              { icon: "🖱️", text: "Drag to relocate plants", color: "blue" },
+              { icon: "👆", text: "Double-tap to remove", color: "red" },
+              { icon: "👁️", text: "Hover for plant insights", color: "purple" }
+            ].map((instruction, index) => (
+              <motion.div
+                key={index}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+              >
+                <span className="text-lg">{instruction.icon}</span>
+                <span className="text-sm text-white/90">{instruction.text}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Enhanced Plant Tooltip */}
+      {hoveredPlant && (
+        <motion.div 
+          className="absolute pointer-events-none glassmorphic border-white/30 rounded-2xl p-4 text-white text-sm shadow-2xl z-10 backdrop-blur-2xl"
+          style={{
+            left: mousePos.x * (800 / canvasRef.current?.clientWidth || 1) + 15,
+            top: mousePos.y * (600 / canvasRef.current?.clientHeight || 1) - 80
+          }}
+          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        >
+          {(() => {
+            const plant = plants.find(p => p.id === hoveredPlant);
+            if (!plant) return null;
+            const progress = (plant.value / plant.target) * 100;
+            return (
+              <div className="min-w-48">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-lg">
+                    {plant.species === 'rose' ? '🌹' : 
+                     plant.species === 'sunflower' ? '🌻' :
+                     plant.species === 'oak' ? '🌳' :
+                     plant.species === 'bamboo' ? '🎋' :
+                     plant.species === 'lily' ? '🌺' : '🌵'}
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">{plant.name}</div>
+                    <div className="text-xs text-white/70 capitalize">{plant.species} • {plant.type}</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white/80">Progress</span>
+                    <span className="font-mono text-green-400">{Math.round(progress)}%</span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                    <motion.div 
+                      className="h-2 rounded-full bg-gradient-to-r from-green-400 to-emerald-500"
+                      style={{ width: `${Math.min(progress, 100)}%` }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(progress, 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white/60">${plant.value.toLocaleString()}</span>
+                    <span className="text-white/60">${plant.target.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </motion.div>
+      )}
+
+      {/* Add Plant Modal */}
+      {showAddPlantModal && isEditable && onPlantAdd && (
+        <AddPlantModal
+          position={addPlantPosition}
+          onClose={() => setShowAddPlantModal(false)}
+          onAdd={(plantData) => {
+            onPlantAdd({
+              ...plantData,
+              x: addPlantPosition.x,
+              y: addPlantPosition.y,
+              health: 0.8,
+              lastWatered: Date.now()
+            });
+            setShowAddPlantModal(false);
+          }}
+        />
+      )}
+
+      {/* Modern Legend */}
+      <motion.div 
+        className="absolute bottom-6 left-6 glassmorphic border-white/20 rounded-2xl p-6 shadow-2xl backdrop-blur-2xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, type: "spring", stiffness: 300 }}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center text-sm">
+            📖
+          </div>
+          <h4 className="font-bold text-white text-lg">Garden Guide</h4>
         </div>
-      </div>
+        
+        <div className="grid grid-cols-1 gap-3">
+          {[
+            { icon: "🌸", label: "Plants", description: "Your financial goals", color: "from-green-400 to-emerald-500" },
+            { icon: "🐝", label: "Bees", description: "Money transfers", color: "from-yellow-400 to-orange-500" },
+            { icon: "🌧️", label: "Rain", description: "Income flow", color: "from-blue-400 to-cyan-500" },
+            { icon: "🥀", label: "Weeds", description: "Wasteful spending", color: "from-red-400 to-rose-500" },
+            { icon: "☀️", label: "Weather", description: "Market conditions", color: "from-amber-400 to-yellow-500" }
+          ].map((item, index) => (
+            <motion.div
+              key={index}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.0 + index * 0.1 }}
+            >
+              <div className={`w-6 h-6 rounded-lg bg-gradient-to-r ${item.color} flex items-center justify-center text-sm`}>
+                {item.icon}
+              </div>
+              <div>
+                <div className="text-white font-medium text-sm">{item.label}</div>
+                <div className="text-white/60 text-xs">{item.description}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// Add Plant Modal Component
+interface AddPlantModalProps {
+  position: { x: number; y: number };
+  onClose: () => void;
+  onAdd: (plantData: {
+    type: Plant['type'];
+    name: string;
+    value: number;
+    target: number;
+    growth: number;
+    species: Plant['species'];
+  }) => void;
+}
+
+const AddPlantModal: React.FC<AddPlantModalProps> = ({ position, onClose, onAdd }) => {
+  const [plantData, setPlantData] = useState({
+    type: 'savings' as Plant['type'],
+    name: '',
+    value: 0,
+    target: 1000,
+    species: 'rose' as Plant['species']
+  });
+
+  const plantTypes = [
+    { value: 'savings', label: 'Savings Goal', color: 'blue' },
+    { value: 'investment', label: 'Investment', color: 'purple' },
+    { value: 'emergency', label: 'Emergency Fund', color: 'green' },
+    { value: 'retirement', label: 'Retirement', color: 'orange' }
+  ];
+
+  const speciesOptions = [
+    { value: 'rose', label: '🌹 Rose', description: 'Beautiful and classic' },
+    { value: 'sunflower', label: '🌻 Sunflower', description: 'Bright and optimistic' },
+    { value: 'oak', label: '🌳 Oak Tree', description: 'Strong and enduring' },
+    { value: 'bamboo', label: '🎋 Bamboo', description: 'Fast growing' },
+    { value: 'lily', label: '🌺 Lily', description: 'Elegant and pure' },
+    { value: 'cactus', label: '🌵 Cactus', description: 'Resilient and hardy' }
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (plantData.name.trim()) {
+      onAdd({
+        ...plantData,
+        growth: (plantData.value / plantData.target) * 100
+      });
+    }
+  };
+
+  return (
+    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <motion.div
+        className="glassmorphic border-white/30 rounded-3xl p-8 shadow-2xl max-w-lg w-full mx-4 backdrop-blur-2xl"
+        initial={{ opacity: 0, scale: 0.8, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.8, y: 30 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      >
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-2xl">
+            🌱
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold text-white mb-1">Plant New Goal</h3>
+            <p className="text-white/70 text-sm">Create a financial goal that will grow in your garden</p>
+          </div>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Plant Name */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Plant Name</label>
+            <input
+              type="text"
+              value={plantData.name}
+              onChange={(e) => setPlantData(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-green-400 focus:bg-white/15 transition-all"
+              placeholder="e.g., Vacation Fund, New Car..."
+              required
+            />
+          </div>
+
+          {/* Plant Type */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Goal Type</label>
+            <select
+              value={plantData.type}
+              onChange={(e) => setPlantData(prev => ({ ...prev, type: e.target.value as Plant['type'] }))}
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-green-400 focus:bg-white/15 transition-all"
+            >
+              {plantTypes.map(type => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Species */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Plant Species</label>
+            <select
+              value={plantData.species}
+              onChange={(e) => setPlantData(prev => ({ ...prev, species: e.target.value as Plant['species'] }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            >
+              {speciesOptions.map(species => (
+                <option key={species.value} value={species.value}>
+                  {species.label} - {species.description}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Financial Values */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Current Value</label>
+              <input
+                type="number"
+                value={plantData.value}
+                onChange={(e) => setPlantData(prev => ({ ...prev, value: Number(e.target.value) }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Target Value</label>
+              <input
+                type="number"
+                value={plantData.target}
+                onChange={(e) => setPlantData(prev => ({ ...prev, target: Number(e.target.value) }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                min="0.01"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Progress Display */}
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-sm text-gray-600 mb-1">Progress: {Math.round((plantData.value / plantData.target) * 100)}%</div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((plantData.value / plantData.target) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-4 pt-6">
+            <motion.button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 text-white/80 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition-all"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Cancel
+            </motion.button>
+            <motion.button
+              type="submit"
+              className="flex-1 px-6 py-3 text-white bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg"
+              whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(34, 197, 94, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
+            >
+              🌱 Plant Goal
+            </motion.button>
+          </div>
+        </form>
+      </motion.div>
     </div>
   );
 };
