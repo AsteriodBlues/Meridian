@@ -37,6 +37,30 @@ interface RainDrop {
   speed: number;
   opacity: number;
   value: number;
+  trail: Array<{x: number; y: number; opacity: number}>;
+}
+
+interface Particle {
+  id: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  color: string;
+  type: 'sparkle' | 'glow' | 'pollen' | 'magic';
+}
+
+interface LightRay {
+  id: string;
+  x: number;
+  y: number;
+  angle: number;
+  length: number;
+  opacity: number;
+  color: string;
 }
 
 interface Weed {
@@ -80,6 +104,8 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
   const [bees, setBees] = useState<Bee[]>([]);
   const [rainDrops, setRainDrops] = useState<RainDrop[]>([]);
   const [weeds, setWeeds] = useState<Weed[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [lightRays, setLightRays] = useState<LightRay[]>([]);
   const [weather, setWeather] = useState<WeatherSystem>({
     season: 'spring',
     condition: 'sunny',
@@ -89,6 +115,9 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
   
   const [time, setTime] = useState(0);
   const [gardenHealth, setGardenHealth] = useState(0.8);
+  const [cameraOffset, setCameraOffset] = useState({ x: 0, y: 0 });
+  const [cameraZoom, setCameraZoom] = useState(1);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   // Initialize garden ecosystem
   useEffect(() => {
@@ -128,25 +157,66 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     });
   }, [recentTransfers, unnecessarySubscriptions, monthlyIncome, monthlyExpenses, marketCondition]);
 
-  // Rain effect for income
+  // Enhanced particle systems and effects
   useEffect(() => {
-    if (weather.condition === 'rainy') {
-      const interval = setInterval(() => {
+    const interval = setInterval(() => {
+      // Enhanced rain with trails
+      if (weather.condition === 'rainy') {
         setRainDrops(prev => [
-          ...prev.slice(-50), // Keep only last 50 drops
+          ...prev.slice(-50).map(drop => ({
+            ...drop,
+            trail: drop.trail.slice(-8).concat([{x: drop.x, y: drop.y, opacity: drop.opacity * 0.7}])
+          })),
           {
             id: `rain-${Date.now()}`,
             x: Math.random() * 800,
             y: -10,
             speed: 3 + Math.random() * 4,
             opacity: 0.6 + Math.random() * 0.4,
-            value: monthlyIncome / 1000
+            value: monthlyIncome / 1000,
+            trail: []
           }
         ]);
-      }, 100);
-      return () => clearInterval(interval);
-    }
-  }, [weather.condition, monthlyIncome]);
+      }
+
+      // Magic particles for healthy plants
+      if (gardenHealth > 0.7) {
+        setParticles(prev => [
+          ...prev.slice(-100),
+          ...Array.from({length: 3}, () => ({
+            id: `particle-${Date.now()}-${Math.random()}`,
+            x: Math.random() * 800,
+            y: 400 + Math.random() * 200,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -Math.random() * 3 - 1,
+            life: 60,
+            maxLife: 60,
+            size: 2 + Math.random() * 4,
+            color: `hsl(${120 + Math.random() * 60}, 70%, ${60 + Math.random() * 30}%)`,
+            type: Math.random() > 0.5 ? 'sparkle' : 'glow'
+          }))
+        ]);
+      }
+
+      // Volumetric light rays
+      if (weather.condition === 'sunny' && Math.random() < 0.3) {
+        setLightRays(prev => [
+          ...prev.slice(-5),
+          {
+            id: `light-${Date.now()}`,
+            x: Math.random() * 800,
+            y: -50,
+            angle: Math.PI / 2 + (Math.random() - 0.5) * 0.3,
+            length: 200 + Math.random() * 300,
+            opacity: 0.1 + Math.random() * 0.2,
+            color: `hsl(${45 + Math.random() * 15}, 80%, 70%)`
+          }
+        ]);
+      }
+    }, 150);
+    
+    return () => clearInterval(interval);
+  }, [weather.condition, monthlyIncome, gardenHealth]);
 
   // Plant growth calculation
   const calculatePlantGrowth = useCallback((plant: Plant): number => {
@@ -159,14 +229,44 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     return Math.max(0, Math.min(100, baseGrowth + marketBonus + seasonBonus + droughtPenalty));
   }, [weather]);
 
-  // Draw plant based on species and growth
+  // Mouse tracking for interactive effects
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      setMousePos({
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+      });
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    return () => canvas.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Enhanced plant drawing with modern effects
   const drawPlant = useCallback((ctx: CanvasRenderingContext2D, plant: Plant) => {
     const growth = calculatePlantGrowth(plant);
     const baseHeight = 60 + (growth / 100) * 40;
-    const x = plant.x;
+    const x = plant.x + Math.sin(time * 0.002 + plant.x * 0.01) * 2; // Wind sway
     const y = plant.y;
 
+    // Mouse proximity effect
+    const mouseDistance = Math.sqrt((mousePos.x - x) ** 2 + (mousePos.y - y) ** 2);
+    const proximityEffect = Math.max(0, 1 - mouseDistance / 150);
+    const glowIntensity = proximityEffect * 0.5;
+
     ctx.save();
+
+    // Glow effect for mouse proximity
+    if (proximityEffect > 0.1) {
+      ctx.shadowColor = `hsl(${120 + growth}, 70%, 50%)`;
+      ctx.shadowBlur = 20 + glowIntensity * 40;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    }
 
     switch (plant.species) {
       case 'rose':
@@ -494,6 +594,171 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     ctx.restore();
   }, []);
 
+  // Draw particle effects
+  const drawParticle = useCallback((ctx: CanvasRenderingContext2D, particle: Particle) => {
+    ctx.save();
+    
+    const lifeRatio = particle.life / particle.maxLife;
+    ctx.globalAlpha = lifeRatio * 0.8;
+    
+    switch (particle.type) {
+      case 'sparkle':
+        // Sparkle effect
+        ctx.fillStyle = particle.color;
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size * 2;
+        
+        const spikes = 4;
+        const outerRadius = particle.size;
+        const innerRadius = particle.size * 0.4;
+        
+        ctx.beginPath();
+        for (let i = 0; i < spikes * 2; i++) {
+          const angle = (i * Math.PI) / spikes;
+          const radius = i % 2 === 0 ? outerRadius : innerRadius;
+          const x = particle.x + Math.cos(angle) * radius;
+          const y = particle.y + Math.sin(angle) * radius;
+          
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        break;
+        
+      case 'glow':
+        // Soft glow orb
+        const gradient = ctx.createRadialGradient(
+          particle.x, particle.y, 0,
+          particle.x, particle.y, particle.size * 2
+        );
+        gradient.addColorStop(0, particle.color);
+        gradient.addColorStop(0.5, particle.color.replace(')', ', 0.5)').replace('hsl', 'hsla'));
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+        
+      case 'pollen':
+        // Floating pollen
+        ctx.fillStyle = particle.color;
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+        
+      case 'magic':
+        // Magic swirl
+        ctx.strokeStyle = particle.color;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = particle.size * 1.5;
+        
+        ctx.beginPath();
+        for (let i = 0; i < Math.PI * 4; i += 0.1) {
+          const radius = particle.size * (1 + Math.sin(i * 2) * 0.3);
+          const x = particle.x + Math.cos(i + particle.life * 0.1) * radius * (i / (Math.PI * 4));
+          const y = particle.y + Math.sin(i + particle.life * 0.1) * radius * (i / (Math.PI * 4));
+          
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        break;
+    }
+    
+    ctx.restore();
+  }, []);
+
+  // Draw volumetric light rays
+  const drawLightRay = useCallback((ctx: CanvasRenderingContext2D, ray: LightRay) => {
+    ctx.save();
+    ctx.globalAlpha = ray.opacity;
+    
+    const gradient = ctx.createLinearGradient(
+      ray.x, ray.y,
+      ray.x + Math.cos(ray.angle) * ray.length,
+      ray.y + Math.sin(ray.angle) * ray.length
+    );
+    
+    gradient.addColorStop(0, ray.color);
+    gradient.addColorStop(0.3, ray.color.replace(')', ', 0.3)').replace('hsl', 'hsla'));
+    gradient.addColorStop(1, 'transparent');
+    
+    ctx.fillStyle = gradient;
+    
+    // Draw ray as a tapered rectangle
+    const width = 20;
+    const endWidth = 5;
+    const endX = ray.x + Math.cos(ray.angle) * ray.length;
+    const endY = ray.y + Math.sin(ray.angle) * ray.length;
+    
+    ctx.beginPath();
+    ctx.moveTo(ray.x - width/2, ray.y);
+    ctx.lineTo(ray.x + width/2, ray.y);
+    ctx.lineTo(endX + endWidth/2, endY);
+    ctx.lineTo(endX - endWidth/2, endY);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.restore();
+  }, []);
+
+  // Enhanced rain drop with trail
+  const drawEnhancedRainDrop = useCallback((ctx: CanvasRenderingContext2D, drop: RainDrop) => {
+    ctx.save();
+    
+    // Draw trail
+    drop.trail.forEach((point, index) => {
+      const trailOpacity = point.opacity * (index / drop.trail.length);
+      ctx.globalAlpha = trailOpacity;
+      ctx.fillStyle = 'hsl(200, 80%, 70%)';
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 1 + (index / drop.trail.length), 0, Math.PI * 2);
+      ctx.fill();
+    });
+    
+    // Main drop with glow
+    ctx.globalAlpha = drop.opacity;
+    ctx.shadowColor = 'hsl(200, 80%, 70%)';
+    ctx.shadowBlur = 8;
+    
+    ctx.fillStyle = 'hsl(200, 80%, 80%)';
+    ctx.beginPath();
+    ctx.ellipse(drop.x, drop.y, 3, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Sparkle effect for value
+    if (drop.value > 0) {
+      ctx.globalAlpha = drop.opacity * 0.8;
+      ctx.fillStyle = 'hsl(50, 100%, 90%)';
+      ctx.shadowColor = 'hsl(50, 100%, 70%)';
+      ctx.shadowBlur = 15;
+      
+      const sparkleSize = 2;
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        const x = drop.x + Math.cos(angle) * 6;
+        const y = drop.y - 12 + Math.sin(angle) * 6;
+        
+        ctx.beginPath();
+        ctx.moveTo(x - sparkleSize, y);
+        ctx.lineTo(x, y - sparkleSize);
+        ctx.lineTo(x + sparkleSize, y);
+        ctx.lineTo(x, y + sparkleSize);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    
+    ctx.restore();
+  }, []);
+
   // Main animation loop
   const animate = useCallback((currentTime: number) => {
     setTime(currentTime);
@@ -504,39 +769,86 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Clear canvas with garden background
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    // Enhanced cinematic background with depth
+    const gradient = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 3, 0,
+      canvas.width / 2, canvas.height / 3, canvas.width * 0.8
+    );
     
-    // Sky color based on weather and season
+    // Dynamic sky colors with atmospheric perspective
     let skyColors = {
-      top: '#87CEEB',
-      bottom: '#98FB98'
+      center: '#87CEEB',
+      edge: '#98FB98',
+      atmosphere: '#E6F3FF'
     };
     
     if (weather.condition === 'rainy') {
-      skyColors = { top: '#696969', bottom: '#87CEEB' };
+      skyColors = { center: '#4A5568', edge: '#2D3748', atmosphere: '#718096' };
     } else if (weather.condition === 'drought') {
-      skyColors = { top: '#DEB887', bottom: '#F4A460' };
+      skyColors = { center: '#FBD38D', edge: '#F6AD55', atmosphere: '#FED7AA' };
     } else if (weather.season === 'autumn') {
-      skyColors = { top: '#FF8C00', bottom: '#FFE4B5' };
+      skyColors = { center: '#FF8C00', edge: '#FFB347', atmosphere: '#FFE4B5' };
     } else if (weather.season === 'winter') {
-      skyColors = { top: '#B0C4DE', bottom: '#F0F8FF' };
+      skyColors = { center: '#B0E0E6', edge: '#87CEEB', atmosphere: '#F0F8FF' };
+    } else if (weather.season === 'spring') {
+      skyColors = { center: '#98FB98', edge: '#90EE90', atmosphere: '#F0FFF0' };
+    } else if (weather.season === 'summer') {
+      skyColors = { center: '#87CEEB', edge: '#00BFFF', atmosphere: '#E0F6FF' };
     }
     
-    gradient.addColorStop(0, skyColors.top);
-    gradient.addColorStop(1, skyColors.bottom);
+    gradient.addColorStop(0, skyColors.center);
+    gradient.addColorStop(0.6, skyColors.edge);
+    gradient.addColorStop(1, skyColors.atmosphere);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Ground
-    const groundGradient = ctx.createLinearGradient(0, canvas.height * 0.8, 0, canvas.height);
-    groundGradient.addColorStop(0, '#8B4513');
+    // Volumetric atmosphere effect
+    const atmosphereGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    atmosphereGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    atmosphereGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.05)');
+    atmosphereGradient.addColorStop(1, 'rgba(255, 255, 255, 0.02)');
+    ctx.fillStyle = atmosphereGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Enhanced layered ground with depth
+    const groundHeight = canvas.height * 0.2;
+    const groundY = canvas.height * 0.8;
+    
+    // Base soil layer with texture
+    const groundGradient = ctx.createLinearGradient(0, groundY, 0, canvas.height);
+    groundGradient.addColorStop(0, '#654321');
+    groundGradient.addColorStop(0.3, '#8B4513');
     groundGradient.addColorStop(1, '#A0522D');
     ctx.fillStyle = groundGradient;
-    ctx.fillRect(0, canvas.height * 0.8, canvas.width, canvas.height * 0.2);
+    ctx.fillRect(0, groundY, canvas.width, groundHeight);
+    
+    // Grass layer with subtle parallax
+    ctx.fillStyle = `hsl(120, ${40 + gardenHealth * 30}%, ${25 + gardenHealth * 15}%)`;
+    for (let i = 0; i < canvas.width; i += 3) {
+      const grassHeight = 8 + Math.sin(i * 0.1 + time * 0.001) * 3;
+      const parallaxOffset = Math.sin(i * 0.05 + time * 0.0005) * 1;
+      ctx.fillRect(i + parallaxOffset, groundY - grassHeight, 2, grassHeight);
+    }
 
-    // Draw plants
+    // Draw volumetric light rays first (behind plants)
+    lightRays.forEach(ray => drawLightRay(ctx, ray));
+
+    // Draw plants with enhanced effects
     plants.forEach(plant => drawPlant(ctx, plant));
+
+    // Update and draw particles
+    setParticles(prev => prev
+      .map(particle => ({
+        ...particle,
+        x: particle.x + particle.vx,
+        y: particle.y + particle.vy,
+        vy: particle.vy + 0.02, // gravity
+        life: particle.life - 1
+      }))
+      .filter(particle => particle.life > 0)
+    );
+    
+    particles.forEach(particle => drawParticle(ctx, particle));
 
     // Update and draw bees
     setBees(prev => prev.map(bee => {
@@ -567,28 +879,80 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     
     bees.forEach(bee => drawBee(ctx, bee, currentTime));
 
-    // Update and draw rain
+    // Update and draw enhanced rain with trails
     setRainDrops(prev => prev
       .map(drop => ({
         ...drop,
         y: drop.y + drop.speed,
-        opacity: drop.opacity - 0.002
+        opacity: drop.opacity - 0.002,
+        trail: drop.trail.slice(-8).concat([{x: drop.x, y: drop.y, opacity: drop.opacity * 0.7}])
       }))
       .filter(drop => drop.y < canvas.height && drop.opacity > 0)
     );
     
-    rainDrops.forEach(drop => drawRainDrop(ctx, drop));
+    rainDrops.forEach(drop => drawEnhancedRainDrop(ctx, drop));
+
+    // Update and fade light rays
+    setLightRays(prev => prev
+      .map(ray => ({
+        ...ray,
+        opacity: ray.opacity - 0.001,
+        length: ray.length + 1
+      }))
+      .filter(ray => ray.opacity > 0)
+    );
 
     // Draw weeds
     weeds.forEach(weed => drawWeed(ctx, weed));
 
-    // Weather effects
+    // Enhanced weather effects
     if (weather.condition === 'stormy') {
-      // Lightning effect
-      if (Math.random() < 0.01) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      // Lightning effect with branching
+      if (Math.random() < 0.02) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#FFFFFF';
+        ctx.shadowBlur = 20;
+        
+        // Main lightning bolt
+        const startX = Math.random() * canvas.width;
+        let currentX = startX;
+        let currentY = 0;
+        
+        ctx.beginPath();
+        ctx.moveTo(currentX, currentY);
+        
+        while (currentY < canvas.height) {
+          currentY += 20 + Math.random() * 30;
+          currentX += (Math.random() - 0.5) * 60;
+          ctx.lineTo(currentX, currentY);
+          
+          // Random branches
+          if (Math.random() < 0.3) {
+            ctx.moveTo(currentX, currentY);
+            ctx.lineTo(currentX + (Math.random() - 0.5) * 100, currentY + Math.random() * 50);
+            ctx.moveTo(currentX, currentY);
+          }
+        }
+        ctx.stroke();
+        
+        // Flash effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
       }
+    }
+
+    // Fog effect for mysterious atmosphere
+    if (weather.condition === 'rainy' || weather.season === 'autumn') {
+      ctx.save();
+      const fogGradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height * 0.9);
+      fogGradient.addColorStop(0, 'rgba(200, 200, 200, 0)');
+      fogGradient.addColorStop(1, 'rgba(200, 200, 200, 0.3)');
+      ctx.fillStyle = fogGradient;
+      ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.3);
+      ctx.restore();
     }
 
     // Garden health indicator
@@ -614,7 +978,7 @@ const MoneyGarden: React.FC<MoneyGardenProps> = ({
     ctx.fillText(`Garden Health: ${Math.round(gardenHealth * 100)}%`, healthBarX, healthBarY - 5);
 
     animationRef.current = requestAnimationFrame(animate);
-  }, [plants, bees, rainDrops, weeds, weather, gardenHealth, drawPlant, drawBee, drawRainDrop, drawWeed]);
+  }, [plants, bees, rainDrops, weeds, particles, lightRays, weather, gardenHealth, time, mousePos, drawPlant, drawBee, drawEnhancedRainDrop, drawWeed, drawParticle, drawLightRay]);
 
   // Start animation
   useEffect(() => {
