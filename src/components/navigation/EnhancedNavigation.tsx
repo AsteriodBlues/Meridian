@@ -27,7 +27,8 @@ import {
   Car,
   Eye,
   Clock,
-  FileText
+  FileText,
+  MessageSquare
 } from 'lucide-react';
 
 // Auth Components
@@ -94,7 +95,10 @@ const DesktopNavigation = () => {
         { name: 'Buy vs Lease Calculator', href: '/advisor/buy-vs-lease', icon: Car, description: 'Car journey simulator' },
         { name: 'Warranty Oracle', href: '/advisor/warranty-oracle', icon: Eye, description: 'Crystal ball predictions' },
         { name: 'Rate Navigator', href: '/advisor/rate-navigator', icon: TrendingUp, description: 'Interest rate rapids' },
-        { name: 'Timing Oracle', href: '/advisor/timing-oracle', icon: Clock, description: 'Market time machine' }
+        { name: 'Timing Oracle', href: '/advisor/timing-oracle', icon: Clock, description: 'Market time machine' },
+        { name: 'Negotiation Theater', href: '/advisor/negotiation-dojo', icon: MessageSquare, description: 'AI training dojo' },
+        { name: 'Contract Detector', href: '/advisor/contract-detector', icon: FileText, description: 'Legal lighthouse scanner' },
+        { name: 'Fine Print Translator', href: '/advisor/fine-print-translator', icon: Search, description: 'Jargon decoder ring' }
       ]
     },
     { 
@@ -153,6 +157,9 @@ const DesktopNavigation = () => {
     { name: 'Warranty Oracle', type: 'advisor', href: '/advisor/warranty-oracle' },
     { name: 'Rate Navigator', type: 'advisor', href: '/advisor/rate-navigator' },
     { name: 'Timing Oracle', type: 'advisor', href: '/advisor/timing-oracle' },
+    { name: 'Negotiation Theater', type: 'advisor', href: '/advisor/negotiation-dojo' },
+    { name: 'Contract Detector', type: 'advisor', href: '/advisor/contract-detector' },
+    { name: 'Fine Print Translator', type: 'advisor', href: '/advisor/fine-print-translator' },
     { name: 'Transaction History', type: 'page', href: '/transactions' },
     { name: 'Budget Management', type: 'page', href: '/budget' },
     { name: 'Credit Monitoring', type: 'page', href: '/credit' },

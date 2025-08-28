@@ -155,32 +155,28 @@ const advisorModules: AdvisorModule[] = [
 
 // Floating particles component
 const FloatingParticles = ({ count = 50 }: { count?: number }) => {
+  const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
   const particlesRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    const particles = Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      size: Math.random() * 4 + 1,
-      opacity: Math.random() * 0.6 + 0.2,
-    }));
-
-    const animate = () => {
-      particles.forEach(particle => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        
-        if (particle.x < 0 || particle.x > window.innerWidth) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > window.innerHeight) particle.vy *= -1;
+    // Only access window on client side
+    if (typeof window !== 'undefined') {
+      setDimensions({ 
+        width: window.innerWidth, 
+        height: window.innerHeight 
       });
-    };
-
-    const interval = setInterval(animate, 16);
-    return () => clearInterval(interval);
-  }, [count]);
+      
+      const handleResize = () => {
+        setDimensions({ 
+          width: window.innerWidth, 
+          height: window.innerHeight 
+        });
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   return (
     <div ref={particlesRef} className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -189,8 +185,8 @@ const FloatingParticles = ({ count = 50 }: { count?: number }) => {
           key={i}
           className="absolute w-1 h-1 bg-white/20 rounded-full"
           animate={{
-            x: Math.sin(Date.now() * 0.001 + i) * 100 + window.innerWidth * 0.5,
-            y: Math.cos(Date.now() * 0.001 + i * 0.5) * 100 + window.innerHeight * 0.5,
+            x: Math.sin(Date.now() * 0.001 + i) * 100 + dimensions.width * 0.5,
+            y: Math.cos(Date.now() * 0.001 + i * 0.5) * 100 + dimensions.height * 0.5,
             opacity: [0.2, 0.6, 0.2],
             scale: [1, 1.5, 1],
           }}
