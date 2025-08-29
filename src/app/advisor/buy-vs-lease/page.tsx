@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import PageLayout from '@/components/layout/PageLayout';
 import MagneticCursor from '@/components/ui/MagneticCursor';
@@ -10,8 +10,261 @@ import {
   Fuel, Wrench, Shield, Award, Clock, ArrowLeft,
   Play, Pause, RotateCcw, Settings, Zap, Star,
   Route, MapPin, CloudRain, Sun, Snowflake, CheckCircle,
-  Lightbulb, AlertTriangle, Brain, Target
+  Lightbulb, AlertTriangle, Brain, Target, Sparkles,
+  Gem, Eye, Wand2, Layers, Orbit, Network, Radar,
+  ArrowRight, BarChart3, PieChart, Activity, Wallet
 } from 'lucide-react';
+
+// Advanced particle system for magical effects (optimized with memo)
+const ParticleSystem = memo(({ isActive, type = 'sparkle', count = 20 }: { 
+  isActive: boolean; 
+  type?: 'sparkle' | 'energy' | 'money' | 'speed';
+  count?: number;
+}) => {
+  // Memoize particles for performance
+  const particles = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 2,
+      duration: 2 + Math.random() * 3,
+      scale: 0.3 + Math.random() * 0.7
+    }));
+  }, [count, type]);
+
+  // Performance optimization - don't render if not active
+  if (!isActive) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className={`absolute w-1 h-1 rounded-full ${
+            type === 'energy' ? 'bg-cyan-400/80' :
+            type === 'money' ? 'bg-green-400/80' :
+            type === 'speed' ? 'bg-blue-400/80' :
+            'bg-white/70'
+          }`}
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+          }}
+          animate={{
+            scale: [0, particle.scale, 0],
+            opacity: [0, 1, 0],
+            rotate: type === 'speed' ? [0, 360] : 0,
+            x: type === 'energy' ? [-20, 20] : 0,
+            y: type === 'speed' ? [-30, 30] : type === 'money' ? [-15, 15] : 0,
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: type === 'speed' ? 'easeInOut' : 'linear'
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+
+// Enhanced 3D Car Model with stunning animations (optimized with memo)
+const EnhancedCar3DModel = memo(({ 
+  carData, 
+  scenario, 
+  isActive 
+}: { 
+  carData: CarData;
+  scenario: 'buy' | 'lease';
+  isActive: boolean;
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(mouseY, { damping: 30, stiffness: 200 });
+  const rotateY = useSpring(mouseX, { damping: 30, stiffness: 200 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const deltaX = (e.clientX - centerX) / rect.width;
+    const deltaY = (e.clientY - centerY) / rect.height;
+    
+    mouseX.set(deltaX * 20);
+    mouseY.set(deltaY * -20);
+  }, [mouseX, mouseY]);
+
+  return (
+    <motion.div
+      className="relative w-full h-64 flex items-center justify-center perspective-1000"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      animate={isActive ? {
+        scale: [1, 1.05, 1],
+        filter: [
+          'brightness(1) saturate(1)',
+          'brightness(1.2) saturate(1.3)',
+          'brightness(1) saturate(1)'
+        ]
+      } : {}}
+      transition={{
+        scale: { duration: 3, repeat: Infinity },
+        filter: { duration: 4, repeat: Infinity }
+      }}
+    >
+      {/* Enhanced car container with 3D transform */}
+      <motion.div
+        className="relative w-48 h-32"
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d'
+        }}
+        animate={isActive ? {
+          y: [0, -10, 0]
+        } : {}}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        {/* Car body with premium gradients */}
+        <motion.div
+          className={`absolute inset-0 rounded-2xl shadow-2xl ${
+            scenario === 'buy' 
+              ? 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600' 
+              : 'bg-gradient-to-br from-purple-400 via-pink-500 to-rose-600'
+          } border-2 border-white/20`}
+          animate={isHovered ? {
+            boxShadow: [
+              '0 20px 40px rgba(0, 0, 0, 0.3)',
+              `0 25px 50px ${scenario === 'buy' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(168, 85, 247, 0.4)'}`,
+              '0 20px 40px rgba(0, 0, 0, 0.3)'
+            ]
+          } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          {/* Car details */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Car className="w-16 h-16 text-white drop-shadow-lg" />
+          </div>
+          
+          {/* Windows */}
+          <div className="absolute top-2 left-4 right-4 h-8 bg-gradient-to-b from-sky-200/80 to-sky-300/60 rounded-t-xl border border-white/30" />
+          
+          {/* Headlights */}
+          <motion.div
+            className="absolute top-1/2 left-1 w-3 h-3 bg-yellow-300 rounded-full"
+            animate={isActive ? {
+              boxShadow: [
+                '0 0 10px rgba(255, 255, 0, 0.5)',
+                '0 0 20px rgba(255, 255, 0, 0.8)',
+                '0 0 10px rgba(255, 255, 0, 0.5)'
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute top-1/2 right-1 w-3 h-3 bg-yellow-300 rounded-full"
+            animate={isActive ? {
+              boxShadow: [
+                '0 0 10px rgba(255, 255, 0, 0.5)',
+                '0 0 20px rgba(255, 255, 0, 0.8)',
+                '0 0 10px rgba(255, 255, 0, 0.5)'
+              ]
+            } : {}}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+          />
+          
+          {/* Wheels */}
+          <motion.div
+            className="absolute bottom-0 left-4 w-6 h-6 bg-gray-800 rounded-full border-2 border-gray-600"
+            animate={isActive ? { rotate: 360 } : {}}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          >
+            <div className="absolute inset-1 bg-gray-700 rounded-full" />
+          </motion.div>
+          <motion.div
+            className="absolute bottom-0 right-4 w-6 h-6 bg-gray-800 rounded-full border-2 border-gray-600"
+            animate={isActive ? { rotate: 360 } : {}}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          >
+            <div className="absolute inset-1 bg-gray-700 rounded-full" />
+          </motion.div>
+          
+          {/* Magical shimmer effect */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 rounded-2xl"
+            animate={isHovered ? {
+              x: ['-100%', '200%']
+            } : {}}
+            transition={{ duration: 1.5, ease: 'easeInOut' }}
+          />
+        </motion.div>
+        
+        {/* 3D shadow */}
+        <motion.div
+          className="absolute top-full left-2 right-2 h-4 bg-black/20 rounded-full blur-md"
+          animate={isActive ? {
+            scale: [1, 1.1, 1],
+            opacity: [0.2, 0.3, 0.2]
+          } : {}}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </motion.div>
+      
+      {/* Floating icons around car */}
+      <AnimatePresence>
+        {isHovered && (
+          <div className="absolute inset-0">
+            {[
+              { icon: DollarSign, angle: 0, color: 'text-green-400' },
+              { icon: Shield, angle: 90, color: 'text-blue-400' },
+              { icon: Zap, angle: 180, color: 'text-yellow-400' },
+              { icon: Star, angle: 270, color: 'text-purple-400' }
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={i}
+                  className={`absolute w-8 h-8 ${item.color} flex items-center justify-center`}
+                  style={{
+                    left: `${50 + Math.cos(item.angle * Math.PI / 180) * 60}%`,
+                    top: `${50 + Math.sin(item.angle * Math.PI / 180) * 60}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ 
+                    opacity: [0, 1, 0],
+                    scale: [0, 1.2, 0],
+                    rotate: 360
+                  }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: i * 0.2
+                  }}
+                >
+                  <Icon className="w-6 h-6" />
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </AnimatePresence>
+      
+      {/* Particle effects */}
+      <ParticleSystem 
+        isActive={isActive} 
+        type={scenario === 'buy' ? 'money' : 'speed'} 
+        count={15} 
+      />
+    </motion.div>
+  );
+});
 
 // Enhanced Car data interface
 interface CarData {
@@ -526,6 +779,134 @@ const generateAdvancedJourneyData = (carData: CarData, userProfile: UserProfile,
   
   return steps;
 };
+
+// Advanced Financial Visualization Chart (optimized with memo)
+const FinancialChart = memo(({ 
+  buyData, 
+  leaseData, 
+  currentMonth,
+  metric 
+}: { 
+  buyData: number[];
+  leaseData: number[];
+  currentMonth: number;
+  metric: 'cost' | 'satisfaction' | 'equity';
+}) => {
+  // Memoize expensive calculations
+  const chartMetrics = useMemo(() => {
+    const maxValue = Math.max(...buyData, ...leaseData);
+    const minValue = Math.min(...buyData, ...leaseData);
+    const range = maxValue - minValue;
+    return { maxValue, minValue, range };
+  }, [buyData, leaseData]);
+
+  const { maxValue, minValue, range } = chartMetrics;
+
+  return (
+    <div className="relative w-full h-64 p-6 bg-gradient-to-br from-white/5 via-white/10 to-white/5 rounded-3xl border border-white/20 backdrop-blur-xl overflow-hidden">
+      {/* Chart background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+      
+      {/* Chart title */}
+      <div className="relative z-10 mb-4">
+        <h3 className="text-lg font-bold text-white capitalize flex items-center gap-2">
+          {metric === 'cost' && <DollarSign className="w-5 h-5 text-green-400" />}
+          {metric === 'satisfaction' && <Star className="w-5 h-5 text-yellow-400" />}
+          {metric === 'equity' && <TrendingUp className="w-5 h-5 text-blue-400" />}
+          {metric} Over Time
+        </h3>
+      </div>
+      
+      {/* Chart area */}
+      <div className="relative h-40 flex items-end justify-between gap-1">
+        {Array.from({ length: 60 }).map((_, month) => {
+          const buyValue = buyData[month] || 0;
+          const leaseValue = leaseData[month] || 0;
+          const buyHeight = ((buyValue - minValue) / range) * 140 + 10;
+          const leaseHeight = ((leaseValue - minValue) / range) * 140 + 10;
+          const isActive = month <= currentMonth;
+          
+          return (
+            <div key={month} className="flex-1 flex flex-col justify-end gap-1 min-w-0">
+              {/* Buy bar */}
+              <motion.div
+                className="bg-gradient-to-t from-emerald-500 to-teal-400 rounded-t-sm relative overflow-hidden"
+                style={{ height: `${buyHeight}px` }}
+                initial={{ height: 0, opacity: 0.5 }}
+                animate={{ 
+                  height: isActive ? `${buyHeight}px` : '2px',
+                  opacity: isActive ? 1 : 0.3,
+                  boxShadow: month === currentMonth ? [
+                    '0 0 10px rgba(16, 185, 129, 0.5)',
+                    '0 0 20px rgba(16, 185, 129, 0.8)',
+                    '0 0 10px rgba(16, 185, 129, 0.5)'
+                  ] : 'none'
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: month * 0.02,
+                  boxShadow: { duration: 1.5, repeat: Infinity }
+                }}
+              >
+                {month === currentMonth && (
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+              </motion.div>
+              
+              {/* Lease bar */}
+              <motion.div
+                className="bg-gradient-to-t from-purple-500 to-pink-400 rounded-t-sm relative overflow-hidden"
+                style={{ height: `${leaseHeight}px` }}
+                initial={{ height: 0, opacity: 0.5 }}
+                animate={{ 
+                  height: isActive ? `${leaseHeight}px` : '2px',
+                  opacity: isActive ? 1 : 0.3,
+                  boxShadow: month === currentMonth ? [
+                    '0 0 10px rgba(168, 85, 247, 0.5)',
+                    '0 0 20px rgba(168, 85, 247, 0.8)',
+                    '0 0 10px rgba(168, 85, 247, 0.5)'
+                  ] : 'none'
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: month * 0.02,
+                  boxShadow: { duration: 1.5, repeat: Infinity }
+                }}
+              >
+                {month === currentMonth && (
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    animate={{ opacity: [0, 0.5, 0] }}
+                    transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
+                  />
+                )}
+              </motion.div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* Chart legend */}
+      <div className="relative z-10 flex justify-center gap-6 mt-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-400 rounded" />
+          <span className="text-sm text-gray-300">Buy</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-pink-400 rounded" />
+          <span className="text-sm text-gray-300">Lease</span>
+        </div>
+      </div>
+      
+      {/* Floating particles */}
+      <ParticleSystem isActive={true} type="money" count={8} />
+    </div>
+  );
+});
 
 // 3D Car Model Component (simplified representation)
 const Car3DModel = ({ type, condition, isAnimating }: { 
@@ -1209,25 +1590,58 @@ export default function BuyVsLeasePage() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <motion.button
-                    className={`p-3 rounded-xl border transition-all ${
+                    className={`relative p-4 rounded-2xl border-2 transition-all duration-300 backdrop-blur-xl overflow-hidden shadow-lg ${
                       isPlaying 
-                        ? 'bg-red-500/20 border-red-500/40 text-red-300'
-                        : 'bg-green-500/20 border-green-500/40 text-green-300'
+                        ? 'bg-red-500/30 border-red-400/60 text-red-300'
+                        : 'bg-green-500/30 border-green-400/60 text-green-300'
                     }`}
                     onClick={() => setIsPlaying(!isPlaying)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.1, rotateZ: isPlaying ? 0 : 5 }}
+                    whileTap={{ scale: 0.9 }}
+                    animate={{
+                      boxShadow: [
+                        `0 0 20px ${isPlaying ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`,
+                        `0 0 35px ${isPlaying ? 'rgba(239, 68, 68, 0.6)' : 'rgba(34, 197, 94, 0.6)'}`,
+                        `0 0 20px ${isPlaying ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`
+                      ]
+                    }}
+                    transition={{
+                      boxShadow: { duration: 2, repeat: Infinity }
+                    }}
                   >
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    {/* Button shimmer */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    
+                    <motion.div
+                      animate={isPlaying ? { rotate: [0, 360] } : {}}
+                      transition={{ duration: 2, repeat: isPlaying ? Infinity : 0, ease: 'linear' }}
+                    >
+                      {isPlaying ? <Pause className="w-6 h-6 relative z-10" /> : <Play className="w-6 h-6 relative z-10" />}
+                    </motion.div>
                   </motion.button>
                   
                   <motion.button
-                    className="p-3 rounded-xl border border-white/20 bg-white/10 text-gray-300 hover:text-white transition-all"
+                    className="relative p-4 rounded-2xl border-2 border-gray-400/40 bg-gray-500/20 text-gray-300 hover:text-white hover:border-gray-300/60 transition-all duration-300 backdrop-blur-xl overflow-hidden shadow-lg"
                     onClick={() => setCurrentStep(0)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ 
+                      scale: 1.1, 
+                      rotate: -180,
+                      boxShadow: '0 0 25px rgba(156, 163, 175, 0.5)' 
+                    }}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    <RotateCcw className="w-5 h-5" />
+                    {/* Reset button pulse */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12"
+                      animate={{ x: ['-100%', '200%'] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    
+                    <RotateCcw className="w-6 h-6 relative z-10" />
                   </motion.button>
                   
                   <div className="text-white">
@@ -1244,47 +1658,156 @@ export default function BuyVsLeasePage() {
                 </div>
               </div>
               
-              {/* Timeline slider */}
-              <div className="relative">
+              {/* Enhanced Timeline slider with micro-interactions */}
+              <div className="relative group">
                 <input
                   type="range"
                   min="0"
                   max={maxSteps - 1}
                   value={currentStep}
                   onChange={(e) => setCurrentStep(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                  className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer slider transition-all duration-200 hover:h-4"
+                  style={{
+                    background: `linear-gradient(to right, 
+                      #3b82f6 0%, 
+                      #8b5cf6 ${(currentStep / (maxSteps - 1)) * 100}%, 
+                      #374151 ${(currentStep / (maxSteps - 1)) * 100}%, 
+                      #374151 100%)`
+                  }}
                 />
-                <div 
-                  className="absolute top-0 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg pointer-events-none"
-                  style={{ width: `${(currentStep / (maxSteps - 1)) * 100}%` }}
+                
+                {/* Animated progress bar */}
+                <motion.div 
+                  className="absolute top-0 h-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg pointer-events-none shadow-lg"
+                  animate={{ 
+                    width: `${(currentStep / (maxSteps - 1)) * 100}%`,
+                    boxShadow: [
+                      '0 0 10px rgba(139, 92, 246, 0.5)',
+                      '0 0 20px rgba(139, 92, 246, 0.8)',
+                      '0 0 10px rgba(139, 92, 246, 0.5)'
+                    ]
+                  }}
+                  transition={{ 
+                    width: { duration: 0.3 },
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
                 />
+                
+                {/* Progress indicator dot */}
+                <motion.div
+                  className="absolute top-1/2 w-6 h-6 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full border-2 border-white shadow-xl transform -translate-y-1/2 cursor-pointer"
+                  style={{ left: `${(currentStep / (maxSteps - 1)) * 100}%`, marginLeft: '-12px' }}
+                  animate={{
+                    scale: isPlaying ? [1, 1.2, 1] : 1,
+                    boxShadow: [
+                      '0 0 15px rgba(59, 130, 246, 0.5)',
+                      '0 0 25px rgba(168, 85, 247, 0.7)',
+                      '0 0 15px rgba(59, 130, 246, 0.5)'
+                    ]
+                  }}
+                  transition={{
+                    scale: { duration: 1, repeat: isPlaying ? Infinity : 0 },
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
+                  whileHover={{ scale: 1.3 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <div className="absolute inset-1 bg-white rounded-full opacity-50" />
+                </motion.div>
+                
+                {/* Timeline markers */}
+                <div className="absolute -bottom-8 left-0 right-0 flex justify-between text-xs text-gray-400">
+                  {Array.from({ length: Math.min(5, maxSteps) }).map((_, i) => {
+                    const markerStep = Math.floor((i * (maxSteps - 1)) / 4);
+                    return (
+                      <motion.div
+                        key={i}
+                        className={`text-center cursor-pointer transition-colors duration-200 ${
+                          currentStep >= markerStep ? 'text-blue-400' : 'text-gray-500'
+                        }`}
+                        onClick={() => setCurrentStep(markerStep)}
+                        whileHover={{ scale: 1.1, color: '#3b82f6' }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        Year {Math.floor(markerStep / 12) + 1}
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
             </motion.div>
 
             {/* Split Screen Comparison */}
             {currentStepData && journeyData.length > 0 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Buy Scenario */}
+                {/* Enhanced Buy Scenario */}
                 <motion.div
-                  className="relative bg-gradient-to-br from-blue-500/10 to-blue-600/5 backdrop-blur-xl border border-blue-500/20 rounded-3xl p-8 overflow-hidden"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6, duration: 0.6 }}
+                  className="relative bg-gradient-to-br from-blue-500/15 via-cyan-500/10 to-emerald-500/15 backdrop-blur-2xl border border-white/30 rounded-4xl p-10 overflow-hidden shadow-2xl"
+                  initial={{ opacity: 0, x: -50, rotateY: -15 }}
+                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ delay: 0.6, duration: 0.8, type: 'spring', stiffness: 100 }}
+                  whileHover={{ 
+                    scale: 1.02,
+                    boxShadow: '0 25px 50px rgba(59, 130, 246, 0.2)'
+                  }}
                 >
+                  {/* Enhanced background effects */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-cyan-400/10 to-emerald-400/5"
+                    animate={{
+                      background: [
+                        'radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
+                      ]
+                    }}
+                    transition={{ duration: 10, repeat: Infinity }}
+                  />
+                  
                   <WeatherEffect condition={currentStepData.weatherCondition} season={currentStepData.season} />
                   
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/40 mb-4">
-                      <Car className="w-4 h-4 text-blue-400" />
-                      <span className="text-blue-300 font-semibold">BUY Path</span>
+                  <div className="relative z-10">
+                    <div className="text-center mb-10">
+                      <motion.div 
+                        className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/30 via-cyan-500/20 to-emerald-500/30 border border-blue-400/50 backdrop-blur-xl mb-6 shadow-2xl"
+                        animate={{
+                          boxShadow: [
+                            '0 0 30px rgba(59, 130, 246, 0.4)',
+                            '0 0 50px rgba(16, 185, 129, 0.5)',
+                            '0 0 30px rgba(6, 182, 212, 0.4)',
+                            '0 0 30px rgba(59, 130, 246, 0.4)'
+                          ],
+                          borderColor: [
+                            'rgba(96, 165, 250, 0.5)',
+                            'rgba(34, 197, 94, 0.5)',
+                            'rgba(34, 211, 238, 0.5)',
+                            'rgba(96, 165, 250, 0.5)'
+                          ]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                      >
+                        <motion.div
+                          animate={{ rotate: isPlaying ? 360 : 0 }}
+                          transition={{ duration: 3, repeat: isPlaying ? Infinity : 0, ease: 'linear' }}
+                        >
+                          <Car className="w-6 h-6 text-blue-400 drop-shadow-lg" />
+                        </motion.div>
+                        <span className="text-blue-200 font-bold text-xl">BUY Journey</span>
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <Sparkles className="w-5 h-5 text-cyan-400" />
+                        </motion.div>
+                      </motion.div>
+                      
+                      <EnhancedCar3DModel 
+                        carData={selectedVehicle}
+                        scenario="buy"
+                        isActive={isPlaying}
+                      />
                     </div>
-                    
-                    <Car3DModel 
-                      type="buy" 
-                      condition={Math.max(60, 100 - (currentStepData.month * 0.5))}
-                      isAnimating={isPlaying}
-                    />
-                  </div>
 
                   {/* Buy Metrics */}
                   <div className="space-y-4">
@@ -1334,6 +1857,7 @@ export default function BuyVsLeasePage() {
                       </div>
                     </div>
                   </div>
+                  </div>
                   
                   {/* Market events */}
                   {currentStepData.marketEvents.length > 0 && (
@@ -1346,37 +1870,109 @@ export default function BuyVsLeasePage() {
                   )}
                 </motion.div>
 
-                {/* Lease Scenario */}
+                {/* Enhanced Lease Scenario */}
                 <motion.div
-                  className="relative bg-gradient-to-br from-green-500/10 to-green-600/5 backdrop-blur-xl border border-green-500/20 rounded-3xl p-8 overflow-hidden"
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
+                  className="relative bg-gradient-to-br from-purple-500/15 via-pink-500/10 to-rose-500/15 backdrop-blur-2xl border border-white/30 rounded-4xl p-10 overflow-hidden shadow-2xl"
+                  initial={{ opacity: 0, x: 50, rotateY: 15 }}
+                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ delay: 0.8, duration: 0.8, type: 'spring', stiffness: 100 }}
+                  whileHover={{ 
+                    scale: 1.02,
+                    boxShadow: '0 25px 50px rgba(168, 85, 247, 0.2)'
+                  }}
                 >
+                  {/* Enhanced background effects */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-purple-400/5 via-pink-400/10 to-rose-400/5"
+                    animate={{
+                      background: [
+                        'radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 20% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 50% 50%, rgba(251, 113, 133, 0.1) 0%, transparent 70%)',
+                        'radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 70%)'
+                      ]
+                    }}
+                    transition={{ duration: 10, repeat: Infinity }}
+                  />
+                  
                   <WeatherEffect condition={currentStepData.weatherCondition} season={currentStepData.season} />
                   
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/40 mb-4">
-                      <Route className="w-4 h-4 text-green-400" />
-                      <span className="text-green-300 font-semibold">LEASE Path</span>
-                    </div>
-                    
-                    <Car3DModel 
-                      type="lease" 
-                      condition={currentStepData.leaseScenario.carCondition}
-                      isAnimating={isPlaying}
-                    />
-                    
-                    {currentStepData.leaseScenario.upgradeOpportunity && (
-                      <motion.div
-                        className="mt-2 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full inline-block"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 200 }}
+                  <div className="relative z-10">
+                    <div className="text-center mb-10">
+                      <motion.div 
+                        className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/30 via-pink-500/20 to-rose-500/30 border border-purple-400/50 backdrop-blur-xl mb-6 shadow-2xl"
+                        animate={{
+                          boxShadow: [
+                            '0 0 30px rgba(168, 85, 247, 0.4)',
+                            '0 0 50px rgba(236, 72, 153, 0.5)',
+                            '0 0 30px rgba(251, 113, 133, 0.4)',
+                            '0 0 30px rgba(168, 85, 247, 0.4)'
+                          ],
+                          borderColor: [
+                            'rgba(196, 181, 253, 0.5)',
+                            'rgba(251, 207, 232, 0.5)',
+                            'rgba(252, 165, 165, 0.5)',
+                            'rgba(196, 181, 253, 0.5)'
+                          ]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity }}
                       >
-                        <span className="text-xs text-yellow-300 font-medium">🚗 Upgrade Available!</span>
+                        <motion.div
+                          animate={{ 
+                            rotate: isPlaying ? [0, 180, 360] : 0,
+                            scale: [1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            rotate: { duration: 3, repeat: isPlaying ? Infinity : 0, ease: 'easeInOut' },
+                            scale: { duration: 2, repeat: Infinity }
+                          }}
+                        >
+                          <Route className="w-6 h-6 text-purple-400 drop-shadow-lg" />
+                        </motion.div>
+                        <span className="text-purple-200 font-bold text-xl">LEASE Adventure</span>
+                        <motion.div
+                          animate={{ 
+                            scale: [1, 1.3, 1], 
+                            rotate: [0, -180, -360],
+                            opacity: [0.7, 1, 0.7]
+                          }}
+                          transition={{ duration: 2.5, repeat: Infinity }}
+                        >
+                          <Gem className="w-5 h-5 text-pink-400" />
+                        </motion.div>
                       </motion.div>
-                    )}
+                      
+                      <EnhancedCar3DModel 
+                        carData={selectedVehicle}
+                        scenario="lease"
+                        isActive={isPlaying}
+                      />
+                      
+                      {currentStepData.leaseScenario.upgradeOpportunity && (
+                        <motion.div
+                          className="mt-4 px-4 py-2 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-amber-500/20 border border-yellow-400/50 rounded-full inline-block backdrop-blur-xl shadow-lg"
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ 
+                            type: 'spring', 
+                            stiffness: 200, 
+                            damping: 15,
+                            delay: 0.5 
+                          }}
+                          whileHover={{ scale: 1.1 }}
+                        >
+                          <span className="text-sm text-yellow-200 font-bold flex items-center gap-2">
+                            <motion.div
+                              animate={{ rotate: [0, 360] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <Car className="w-4 h-4 text-yellow-400" />
+                            </motion.div>
+                            <span>New Model Available!</span>
+                            <Sparkles className="w-4 h-4 text-yellow-400" />
+                          </span>
+                        </motion.div>
+                      )}
                   </div>
 
                   {/* Lease Metrics */}
@@ -1438,24 +2034,91 @@ export default function BuyVsLeasePage() {
                       )}
                     </div>
                   </div>
+                  </div>
                 </motion.div>
               </div>
             )}
 
             {/* Advanced Analysis Toggle */}
             <motion.div
-              className="text-center mb-8"
+              className="text-center mb-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.6 }}
             >
               <motion.button
-                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-white font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="relative px-10 py-5 bg-gradient-to-r from-purple-500/30 via-indigo-500/25 to-pink-500/30 border-2 border-purple-400/50 rounded-3xl text-white font-bold text-lg backdrop-blur-2xl overflow-hidden shadow-2xl"
                 onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.08, 
+                  rotateX: 5,
+                  boxShadow: '0 25px 50px rgba(168, 85, 247, 0.3)'
+                }}
                 whileTap={{ scale: 0.95 }}
+                animate={{
+                  boxShadow: [
+                    '0 0 30px rgba(99, 102, 241, 0.4)',
+                    '0 0 50px rgba(168, 85, 247, 0.5)',
+                    '0 0 30px rgba(236, 72, 153, 0.4)',
+                    '0 0 30px rgba(99, 102, 241, 0.4)'
+                  ]
+                }}
+                transition={{
+                  boxShadow: { duration: 3, repeat: Infinity }
+                }}
               >
-                {showAdvancedAnalysis ? 'Hide' : 'Show'} Advanced Analysis & Risk Assessment
+                {/* Magical shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                  animate={{ x: ['-100%', '200%'] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                
+                {/* Button content */}
+                <div className="relative z-10 flex items-center justify-center gap-3">
+                  <motion.div
+                    animate={{ 
+                      rotate: showAdvancedAnalysis ? 180 : 0,
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{
+                      rotate: { duration: 0.3 },
+                      scale: { duration: 2, repeat: Infinity }
+                    }}
+                  >
+                    <Brain className="w-6 h-6 text-purple-300" />
+                  </motion.div>
+                  <span>{showAdvancedAnalysis ? 'Hide' : 'Show'} Advanced Analysis & Risk Assessment</span>
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <Sparkles className="w-5 h-5 text-pink-400" />
+                  </motion.div>
+                </div>
+                
+                {/* Floating particles around button */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-purple-400/60 rounded-full"
+                      style={{
+                        left: `${50 + Math.cos(i * 45 * Math.PI / 180) * 40}%`,
+                        top: `${50 + Math.sin(i * 45 * Math.PI / 180) * 40}%`
+                      }}
+                      animate={{
+                        opacity: [0, 1, 0],
+                        scale: [0, 1.5, 0]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.1
+                      }}
+                    />
+                  ))}
+                </div>
               </motion.button>
             </motion.div>
             

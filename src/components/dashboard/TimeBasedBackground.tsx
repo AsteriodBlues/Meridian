@@ -53,9 +53,9 @@ const timeGradients = {
     particles: '#FB923C',
   },
   night: {
-    primary: 'from-slate-900 via-gray-900 to-black',
-    secondary: 'from-slate-500/15 via-gray-500/10 to-black/5',
-    accent: 'from-slate-400/20 to-gray-400/10',
+    primary: 'from-slate-800 via-gray-800 to-slate-900',
+    secondary: 'from-slate-500/20 via-gray-500/15 to-slate-500/10',
+    accent: 'from-slate-400/25 to-gray-400/15',
     particles: '#94A3B8',
   },
 };

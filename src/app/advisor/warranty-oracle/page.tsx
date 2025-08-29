@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import PageLayout from '@/components/layout/PageLayout';
 import MagneticCursor from '@/components/ui/MagneticCursor';
@@ -9,7 +10,9 @@ import {
   Shield, Zap, AlertTriangle, CheckCircle, XCircle, 
   ArrowLeft, Search, Upload, Camera, Sparkles,
   Gem, Eye, Star, Clock, DollarSign, TrendingDown,
-  Wrench, Heart, Brain, Target, Award, Lightbulb
+  Wrench, Heart, Brain, Target, Award, Lightbulb,
+  Wand2, Telescope, Radar, Scan, Atom,
+  Layers, Orbit, Workflow, Network
 } from 'lucide-react';
 
 // Product and warranty data interfaces
@@ -62,7 +65,7 @@ interface WarrantyEvent {
   covered: boolean;
 }
 
-// Mock product database
+// Enhanced product database with more realistic data
 const mockProducts: Product[] = [
   {
     id: 'iphone-15',
@@ -131,8 +134,162 @@ const mockProducts: Product[] = [
       { type: 'Keyboard Replacement', cost: 349, probability: 0.12, timeframe: 20, covered: true },
       { type: 'Logic Board Repair', cost: 899, probability: 0.03, timeframe: 36, covered: true }
     ]
+  },
+  {
+    id: 'samsung-tv',
+    name: 'Samsung QLED 65"',
+    brand: 'Samsung',
+    category: 'electronics',
+    price: 1299,
+    purchaseDate: new Date(),
+    warrantyPeriod: 12,
+    reliability: 88,
+    commonFailures: [
+      {
+        component: 'Backlight',
+        probability: 0.18,
+        timeframe: 28,
+        severity: 'major',
+        description: 'LED backlight strip failure causing dark spots'
+      },
+      {
+        component: 'Power Supply',
+        probability: 0.11,
+        timeframe: 34,
+        severity: 'critical',
+        description: 'Power board component failure'
+      }
+    ],
+    repairCosts: [
+      { type: 'Backlight Repair', cost: 450, probability: 0.18, timeframe: 28, covered: true },
+      { type: 'Power Supply Replacement', cost: 299, probability: 0.11, timeframe: 34, covered: true }
+    ]
+  },
+  {
+    id: 'dyson-vacuum',
+    name: 'Dyson V15 Detect',
+    brand: 'Dyson',
+    category: 'appliances',
+    price: 649,
+    purchaseDate: new Date(),
+    warrantyPeriod: 24,
+    reliability: 82,
+    commonFailures: [
+      {
+        component: 'Battery Pack',
+        probability: 0.22,
+        timeframe: 26,
+        severity: 'major',
+        description: 'Li-ion battery degradation affecting runtime'
+      },
+      {
+        component: 'Motor Assembly',
+        probability: 0.09,
+        timeframe: 40,
+        severity: 'critical',
+        description: 'Digital motor bearing failure'
+      }
+    ],
+    repairCosts: [
+      { type: 'Battery Replacement', cost: 149, probability: 0.22, timeframe: 26, covered: true },
+      { type: 'Motor Repair', cost: 289, probability: 0.09, timeframe: 40, covered: true }
+    ]
   }
 ];
+
+// Advanced particle system for magical effects
+const ParticleSystem = ({ isActive, type = 'sparkle' }: { isActive: boolean; type?: 'sparkle' | 'energy' | 'quantum' }) => {
+  const particles = useMemo(() => {
+    return Array.from({ length: type === 'quantum' ? 30 : 20 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 2,
+      duration: 2 + Math.random() * 3,
+      scale: 0.3 + Math.random() * 0.7
+    }));
+  }, [type]);
+
+  if (!isActive) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className={`absolute w-1 h-1 rounded-full ${
+            type === 'energy' ? 'bg-cyan-400/80' :
+            type === 'quantum' ? 'bg-purple-400/60' :
+            'bg-white/70'
+          }`}
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+          }}
+          animate={{
+            scale: [0, particle.scale, 0],
+            opacity: [0, 1, 0],
+            rotate: type === 'quantum' ? [0, 360] : 0,
+            x: type === 'energy' ? [-20, 20] : 0,
+            y: type === 'energy' ? [-10, 10] : type === 'quantum' ? [-30, 30] : 0,
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: type === 'quantum' ? 'easeInOut' : 'linear'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Enhanced 3D-like crystal ball rings
+const CrystalRings = ({ isAnalyzing }: { isAnalyzing: boolean }) => {
+  const rings = useMemo(() => [
+    { size: '120%', delay: 0, speed: 8, opacity: 0.3 },
+    { size: '140%', delay: 0.5, speed: 12, opacity: 0.2 },
+    { size: '160%', delay: 1, speed: 16, opacity: 0.15 },
+    { size: '180%', delay: 1.5, speed: 20, opacity: 0.1 }
+  ], []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {rings.map((ring, i) => (
+        <motion.div
+          key={i}
+          className="absolute border border-cyan-400/40 rounded-full"
+          style={{
+            width: ring.size,
+            height: ring.size,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: ring.opacity
+          }}
+          animate={isAnalyzing ? {
+            rotate: 360,
+            scale: [1, 1.1, 1],
+            borderColor: [
+              'rgba(34, 211, 238, 0.4)',
+              'rgba(168, 85, 247, 0.4)',
+              'rgba(236, 72, 153, 0.4)',
+              'rgba(34, 211, 238, 0.4)'
+            ]
+          } : {
+            rotate: 360
+          }}
+          transition={{
+            rotate: { duration: ring.speed, repeat: Infinity, ease: 'linear' },
+            scale: { duration: 3, repeat: Infinity, delay: ring.delay },
+            borderColor: { duration: 4, repeat: Infinity, delay: ring.delay }
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 // Crystal Ball Component with mystical animations
 const CrystalBall = ({ 
@@ -845,6 +1002,83 @@ export default function WarrantyOraclePage() {
               </div>
             </div>
           </div>
+          
+          {/* Enhanced floating action button */}
+          <motion.div
+            className="fixed bottom-8 right-8 z-50"
+            initial={{ opacity: 0, scale: 0, rotate: -180 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ delay: 2, duration: 0.8, type: 'spring', stiffness: 200 }}
+          >
+            <motion.button
+              className="group relative w-16 h-16 bg-gradient-to-br from-purple-500 via-cyan-500 to-pink-500 rounded-full shadow-2xl flex items-center justify-center overflow-hidden"
+              whileHover={{ 
+                scale: 1.1,
+                rotate: 180,
+                boxShadow: '0 0 40px rgba(168, 85, 247, 0.6)'
+              }}
+              whileTap={{ scale: 0.9 }}
+              animate={{
+                boxShadow: [
+                  '0 0 20px rgba(168, 85, 247, 0.4)',
+                  '0 0 30px rgba(6, 182, 212, 0.6)',
+                  '0 0 20px rgba(236, 72, 153, 0.4)',
+                  '0 0 20px rgba(168, 85, 247, 0.4)'
+                ]
+              }}
+              transition={{ 
+                boxShadow: { duration: 3, repeat: Infinity }
+              }}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              {/* Animated background pattern */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              />
+              
+              <motion.div
+                className="relative z-10"
+                animate={{ rotate: -180 }}
+                transition={{ duration: 0.5 }}
+                whileHover={{ rotate: 0 }}
+              >
+                <Wand2 className="w-6 h-6 text-white drop-shadow-lg" />
+              </motion.div>
+              
+              {/* Magic particles */}
+              <div className="absolute inset-0">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/80 rounded-full"
+                    animate={{
+                      x: [0, Math.cos(i * 60 * Math.PI / 180) * 30],
+                      y: [0, Math.sin(i * 60 * Math.PI / 180) * 30],
+                      opacity: [0, 1, 0],
+                      scale: [0, 1.5, 0]
+                    }}
+                    transition={{
+                      duration: 2,
+                      delay: i * 0.1,
+                      repeat: Infinity,
+                      ease: 'easeInOut'
+                    }}
+                  />
+                ))}
+              </div>
+            </motion.button>
+            
+            {/* Tooltip */}
+            <motion.div
+              className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-black/80 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+              initial={{ y: 10 }}
+              whileHover={{ y: 0 }}
+            >
+              Return to Oracle's Chamber
+            </motion.div>
+          </motion.div>
         </div>
       </TimeBasedBackground>
     </PageLayout>
