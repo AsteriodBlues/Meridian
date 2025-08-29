@@ -43,20 +43,21 @@ interface Warning {
   suggestion: string;
 }
 
-// Comprehensive legal terms database
+// Comprehensive legal terms database with advanced categorization
 const legalTermsDatabase: LegalTerm[] = [
+  // Contract Terms - High Risk
   {
     term: 'Force Majeure',
     definition: 'Unforeseeable circumstances that prevent a party from fulfilling a contract',
-    plainEnglish: 'If something crazy happens (like a natural disaster or war) that makes it impossible to do what we agreed, neither party is in trouble for not doing it.',
-    example: 'During COVID-19, many businesses invoked force majeure clauses to avoid penalties for delayed deliveries.',
+    plainEnglish: 'If something uncontrollable happens (natural disaster, war, pandemic), neither party gets in trouble for not meeting their obligations.',
+    example: 'During COVID-19, many businesses used force majeure clauses to avoid penalties for delayed deliveries.',
     riskLevel: 'medium',
     category: 'contract'
   },
   {
     term: 'Indemnification',
     definition: 'Security or protection against a loss or other financial burden',
-    plainEnglish: 'If someone sues us because of something you did, you have to pay for our legal costs and any damages.',
+    plainEnglish: 'If someone sues because of something you did, you must pay all legal costs and damages. This can be extremely expensive.',
     example: 'The contractor agreed to indemnify the property owner against any workplace injury claims.',
     riskLevel: 'high',
     category: 'legal'
@@ -64,7 +65,7 @@ const legalTermsDatabase: LegalTerm[] = [
   {
     term: 'Liquidated Damages',
     definition: 'A predetermined amount of money that must be paid if a contract is breached',
-    plainEnglish: 'If you break the contract, you pay this specific dollar amount as punishment, no questions asked.',
+    plainEnglish: 'If you break the contract, you pay this exact dollar amount as a penalty - no negotiations, no exceptions.',
     example: 'If the wedding venue cancels within 30 days, they owe $5,000 in liquidated damages.',
     riskLevel: 'high',
     category: 'financial'
@@ -72,7 +73,7 @@ const legalTermsDatabase: LegalTerm[] = [
   {
     term: 'Arbitration Clause',
     definition: 'Agreement to resolve disputes through arbitration rather than court litigation',
-    plainEnglish: 'Instead of going to court, we agree to let a private judge (arbitrator) decide our disputes.',
+    plainEnglish: 'Instead of going to court, disputes go to a private judge. You give up your right to a jury trial and class action lawsuits.',
     example: 'The employment contract required all disputes to go through binding arbitration.',
     riskLevel: 'medium',
     category: 'legal'
@@ -80,7 +81,7 @@ const legalTermsDatabase: LegalTerm[] = [
   {
     term: 'Severability',
     definition: 'If one part of a contract is invalid, the rest remains enforceable',
-    plainEnglish: 'If a court says one piece of our agreement is illegal, the rest of the contract still counts.',
+    plainEnglish: 'If a court says one part of the agreement is illegal, the rest of the contract still applies.',
     example: 'Even though the non-compete clause was unenforceable, the severability clause kept the employment contract valid.',
     riskLevel: 'low',
     category: 'contract'
@@ -88,18 +89,225 @@ const legalTermsDatabase: LegalTerm[] = [
   {
     term: 'Usufruct',
     definition: 'The right to use and derive income from property belonging to another',
-    plainEnglish: 'You can use someone else\'s property and keep any money it makes, but you can\'t sell it.',
-    example: 'The heir received usufruct rights to the family farm, allowing them to farm it but not sell it.',
+    plainEnglish: 'You can use someone else\'s property and keep profits from it, but you can\'t sell the property itself.',
+    example: 'The heir received usufruct rights to the family farm, allowing farming income but not property sale.',
     riskLevel: 'medium',
     category: 'real_estate'
   },
   {
     term: 'Subrogation',
     definition: 'The substitution of one creditor for another',
-    plainEnglish: 'When your insurance pays for damage, they can then go after whoever caused it to get their money back.',
+    plainEnglish: 'When insurance pays for your damage, they can sue whoever caused it to recover their money.',
     example: 'After paying for car repairs, the insurance company used subrogation to recover costs from the at-fault driver.',
     riskLevel: 'low',
     category: 'insurance'
+  },
+  // Financial Terms - Critical Understanding
+  {
+    term: 'Compound Interest',
+    definition: 'Interest calculated on the initial principal and accumulated interest',
+    plainEnglish: 'Interest on interest - your debt grows faster over time because you pay interest on previous interest.',
+    example: 'A $1,000 credit card balance at 20% compound interest becomes $1,728 after 3 years if unpaid.',
+    riskLevel: 'high',
+    category: 'financial'
+  },
+  {
+    term: 'Balloon Payment',
+    definition: 'A large payment due at the end of a loan term',
+    plainEnglish: 'You make small payments for most of the loan, then one huge final payment that could be thousands of dollars.',
+    example: 'The car loan required monthly payments of $200, with a $15,000 balloon payment at the end.',
+    riskLevel: 'high',
+    category: 'financial'
+  },
+  {
+    term: 'Acceleration Clause',
+    definition: 'Provision allowing the lender to demand immediate payment of the entire loan balance',
+    plainEnglish: 'If you miss payments or break loan rules, the lender can demand you pay back the entire loan immediately.',
+    example: 'After missing three mortgage payments, the acceleration clause made the entire $200,000 balance due immediately.',
+    riskLevel: 'high',
+    category: 'financial'
+  },
+  {
+    term: 'Cross-Default Clause',
+    definition: 'If you default on one loan, it triggers default on all other loans with the same lender',
+    plainEnglish: 'Miss payments on your credit card, and suddenly your car loan and mortgage with the same bank are also in default.',
+    example: 'The cross-default clause meant that defaulting on the personal loan also put the business loan at risk.',
+    riskLevel: 'high',
+    category: 'financial'
+  },
+  // Insurance Terms
+  {
+    term: 'Exclusion Clause',
+    definition: 'Specific situations or conditions not covered by an insurance policy',
+    plainEnglish: 'These are the things your insurance will NOT pay for - read these carefully or you might be surprised.',
+    example: 'The flood exclusion clause meant hurricane damage from wind was covered, but water damage was not.',
+    riskLevel: 'high',
+    category: 'insurance'
+  },
+  {
+    term: 'Deductible',
+    definition: 'Amount you must pay out of pocket before insurance coverage begins',
+    plainEnglish: 'The amount you pay first before insurance pays anything. Higher deductible = lower premiums but more out-of-pocket costs.',
+    example: 'With a $1,000 deductible, you pay the first $1,000 of car repair costs, then insurance covers the rest.',
+    riskLevel: 'medium',
+    category: 'insurance'
+  },
+  {
+    term: 'Coordination of Benefits',
+    definition: 'Rules determining which insurance pays first when you have multiple policies',
+    plainEnglish: 'When you have two insurance policies, this determines which one pays first and how much each pays.',
+    example: 'With both employer and spouse\'s health insurance, coordination of benefits prevented double payment.',
+    riskLevel: 'low',
+    category: 'insurance'
+  },
+  // Employment Terms
+  {
+    term: 'At-Will Employment',
+    definition: 'Employment can be terminated by either party at any time without cause',
+    plainEnglish: 'You or your employer can end the job at any time, for almost any reason, with no advance notice required.',
+    example: 'Under at-will employment, the company could fire employees for wearing the wrong color shirt.',
+    riskLevel: 'high',
+    category: 'contract'
+  },
+  {
+    term: 'Non-Compete Agreement',
+    definition: 'Restriction preventing employee from working for competitors after leaving',
+    plainEnglish: 'After you quit or get fired, you can\'t work for competing companies for a specific time period in certain locations.',
+    example: 'The non-compete agreement prevented the sales rep from joining any competitor for 2 years within 50 miles.',
+    riskLevel: 'high',
+    category: 'contract'
+  },
+  {
+    term: 'Intellectual Property Assignment',
+    definition: 'Transfer of ownership of ideas, inventions, or creative works to the company',
+    plainEnglish: 'Anything you create, invent, or think of while working (sometimes even at home) belongs to your employer, not you.',
+    example: 'The IP assignment clause meant the employee\'s weekend app idea became company property.',
+    riskLevel: 'high',
+    category: 'contract'
+  },
+  {
+    term: 'Vesting Schedule',
+    definition: 'Timeline for earning full ownership of employer-provided benefits',
+    plainEnglish: 'You gradually earn ownership of company benefits over time. Leave early, lose benefits.',
+    example: 'The 401k vesting schedule meant employees lost 50% of company matches if they left before 3 years.',
+    riskLevel: 'medium',
+    category: 'financial'
+  },
+  // Real Estate Terms
+  {
+    term: 'Easement',
+    definition: 'Legal right to use someone else\'s land for a specific purpose',
+    plainEnglish: 'Someone else has the legal right to use part of your property for something specific (like utilities or access).',
+    example: 'The utility easement allowed the power company to access their property to maintain electrical lines.',
+    riskLevel: 'medium',
+    category: 'real_estate'
+  },
+  {
+    term: 'Title Insurance',
+    definition: 'Insurance protecting against defects in property ownership records',
+    plainEnglish: 'Protects you if someone else claims they actually own your property or if there are liens you didn\'t know about.',
+    example: 'Title insurance covered the legal costs when a previous owner\'s unpaid taxes created a lien on the property.',
+    riskLevel: 'low',
+    category: 'insurance'
+  },
+  {
+    term: 'Covenant',
+    definition: 'Promise or agreement written into property deeds',
+    plainEnglish: 'Rules about what you can and cannot do with your property, enforceable by neighbors or HOA.',
+    example: 'The neighborhood covenant prohibited painting houses any color other than earth tones.',
+    riskLevel: 'medium',
+    category: 'real_estate'
+  },
+  {
+    term: 'Lien',
+    definition: 'Legal claim against property as security for debt',
+    plainEnglish: 'Someone has a legal right to your property until you pay them what you owe. They could force a sale.',
+    example: 'The contractor placed a lien on the house when the homeowner didn\'t pay for the roof repairs.',
+    riskLevel: 'high',
+    category: 'real_estate'
+  },
+  // Technology & Privacy Terms
+  {
+    term: 'Data Processing Agreement',
+    definition: 'Contract governing how personal data is handled',
+    plainEnglish: 'Rules about what companies can do with your personal information - often gives them broad rights.',
+    example: 'The data processing agreement allowed the app to share user location data with advertising partners.',
+    riskLevel: 'medium',
+    category: 'legal'
+  },
+  {
+    term: 'Terms of Service',
+    definition: 'Legal agreements users must accept to use a service',
+    plainEnglish: 'The fine print that governs your use of websites and apps - often limits your rights significantly.',
+    example: 'The social media terms of service gave the platform ownership rights to all uploaded photos.',
+    riskLevel: 'medium',
+    category: 'legal'
+  },
+  {
+    term: 'Mandatory Arbitration',
+    definition: 'Requirement to resolve disputes through arbitration instead of courts',
+    plainEnglish: 'You give up your right to sue in court or join class action lawsuits - disputes go to private arbitration.',
+    example: 'The credit card\'s mandatory arbitration clause prevented customers from joining the class action lawsuit.',
+    riskLevel: 'high',
+    category: 'legal'
+  },
+  // Healthcare Terms
+  {
+    term: 'Prior Authorization',
+    definition: 'Insurance requirement to approve treatments before coverage',
+    plainEnglish: 'Insurance must approve your treatment in advance, or they won\'t pay for it - even if medically necessary.',
+    example: 'The MRI required prior authorization, delaying diagnosis by two weeks.',
+    riskLevel: 'high',
+    category: 'insurance'
+  },
+  {
+    term: 'Network Provider',
+    definition: 'Healthcare providers who have contracts with your insurance',
+    plainEnglish: 'Doctors and hospitals your insurance company has deals with. Going outside the network costs much more.',
+    example: 'Using an out-of-network emergency room cost $5,000 instead of the $500 copay for network providers.',
+    riskLevel: 'high',
+    category: 'insurance'
+  },
+  {
+    term: 'Pre-existing Condition',
+    definition: 'Health condition you had before getting insurance coverage',
+    plainEnglish: 'Health problems you had before getting insurance - some policies won\'t cover treatment for these.',
+    example: 'The insurance policy excluded coverage for the applicant\'s pre-existing diabetes condition.',
+    riskLevel: 'high',
+    category: 'insurance'
+  },
+  // Additional Critical Terms
+  {
+    term: 'Waiver of Liability',
+    definition: 'Agreement to give up the right to sue for damages or injuries',
+    plainEnglish: 'You promise not to sue even if they hurt you or damage your property through their negligence.',
+    example: 'The gym\'s liability waiver prevented lawsuits even when faulty equipment caused injuries.',
+    riskLevel: 'high',
+    category: 'legal'
+  },
+  {
+    term: 'Hold Harmless Agreement',
+    definition: 'Promise to protect another party from legal consequences',
+    plainEnglish: 'You agree to take responsibility for any legal problems that arise, protecting the other party from lawsuits.',
+    example: 'The hold harmless agreement made the tenant responsible for any injuries to visitors.',
+    riskLevel: 'high',
+    category: 'legal'
+  },
+  {
+    term: 'Statute of Limitations',
+    definition: 'Time limit for filing a lawsuit',
+    plainEnglish: 'You only have a limited time to sue after something happens - wait too long and you lose the right forever.',
+    example: 'The 2-year statute of limitations expired, preventing the patient from suing for malpractice.',
+    riskLevel: 'medium',
+    category: 'legal'
+  },
+  {
+    term: 'Joint and Several Liability',
+    definition: 'Each party is responsible for the entire obligation, not just their share',
+    plainEnglish: 'If multiple people owe money, creditors can collect the full amount from any one person, even if others can\'t pay.',
+    example: 'Under joint and several liability, one co-signer ended up paying the entire $50,000 loan when others defaulted.',
+    riskLevel: 'high',
+    category: 'financial'
   }
 ];
 
