@@ -10,20 +10,33 @@ import {
   Sun, Snowflake, Zap, ArrowLeft, Play, Pause, 
   RotateCcw, Shield, Target, DollarSign, Calendar,
   ThermometerSun, Wind, Compass, Navigation, Map,
-  AlertTriangle, CheckCircle, Info, Lightbulb
+  AlertTriangle, CheckCircle, Info, Lightbulb, Brain
 } from 'lucide-react';
 
-// Rate data interfaces
+// Enhanced Rate data interfaces
 interface RateScenario {
   id: string;
   name: string;
-  type: 'fixed' | 'variable';
+  type: 'fixed' | 'variable' | 'adjustable' | 'hybrid';
   initialRate: number;
+  adjustmentPeriod?: number; // months
+  capRate?: number; // maximum rate for adjustable
+  floorRate?: number; // minimum rate for adjustable
   description: string;
   pros: string[];
   cons: string[];
+  riskLevel: 'low' | 'medium' | 'high';
+  marketShare: number; // percentage of borrowers choosing this option
   color: string;
   icon: any;
+  historicalPerformance: HistoricalData[];
+}
+
+interface HistoricalData {
+  year: number;
+  averageRate: number;
+  volatility: number;
+  marketCondition: string;
 }
 
 interface EconomicWeather {
@@ -34,6 +47,28 @@ interface EconomicWeather {
   impact: string;
   icon: any;
   severity: number; // 0-100
+  confidence: number; // 0-100 forecast confidence
+  economicIndicators: EconomicIndicator[];
+  centralBankPolicy: CentralBankPolicy;
+}
+
+interface EconomicIndicator {
+  name: string;
+  value: number;
+  trend: 'up' | 'down' | 'stable';
+  impact: 'positive' | 'negative' | 'neutral';
+  weight: number; // influence on rates
+}
+
+interface CentralBankPolicy {
+  currentRate: number;
+  nextMeetingDate: string;
+  stance: 'hawkish' | 'dovish' | 'neutral';
+  probability: {
+    raise: number;
+    hold: number;
+    cut: number;
+  };
 }
 
 interface RateTimelineStep {
@@ -51,13 +86,63 @@ interface RateTimelineStep {
 interface LoanDetails {
   principal: number;
   termYears: number;
-  loanType: string;
+  loanType: 'mortgage' | 'auto' | 'personal' | 'business';
+  downPayment?: number;
+  creditScore: number;
+  debtToIncome: number;
+  purpose: string;
+  propertyType?: 'primary' | 'investment' | 'vacation';
+  loanToValue?: number;
+}
+
+interface PersonalizedFactors {
+  riskTolerance: 'conservative' | 'moderate' | 'aggressive';
+  paymentStability: 'stable' | 'variable' | 'growing';
+  timeHorizon: number; // years planning to keep loan
+  financialGoals: string[];
+  marketOutlook: 'optimistic' | 'pessimistic' | 'neutral';
+}
+
+interface RiskAssessment {
+  paymentShock: number; // worst case payment increase
+  probabilityOfRegret: number; // chance of wishing chose differently
+  stressTestResults: StressTestResult[];
+  scenarioAnalysis: ScenarioResult[];
+}
+
+interface StressTestResult {
+  scenario: string;
+  maxRate: number;
+  maxPayment: number;
+  affordabilityRisk: 'low' | 'medium' | 'high';
+}
+
+interface ScenarioResult {
+  name: string;
+  probability: number;
+  outcomeFixed: number;
+  outcomeVariable: number;
+  difference: number;
 }
 
 const mockLoanDetails: LoanDetails = {
   principal: 350000,
   termYears: 30,
-  loanType: 'Mortgage'
+  loanType: 'mortgage',
+  downPayment: 70000,
+  creditScore: 750,
+  debtToIncome: 0.28,
+  purpose: 'Primary residence purchase',
+  propertyType: 'primary',
+  loanToValue: 0.8
+};
+
+const mockPersonalFactors: PersonalizedFactors = {
+  riskTolerance: 'moderate',
+  paymentStability: 'stable',
+  timeHorizon: 7,
+  financialGoals: ['Build equity', 'Minimize total interest', 'Payment predictability'],
+  marketOutlook: 'neutral'
 };
 
 const rateScenarios: RateScenario[] = [
@@ -67,10 +152,19 @@ const rateScenarios: RateScenario[] = [
     type: 'fixed',
     initialRate: 6.75,
     description: 'Predictable payments that never change, like a sturdy anchor in choppy waters',
-    pros: ['Payment stability', 'Protection from rate increases', 'Easy budgeting', 'Peace of mind'],
-    cons: ['Higher initial rate', 'No benefit from rate decreases', 'Harder to qualify'],
+    pros: ['Payment stability', 'Protection from rate increases', 'Easy budgeting', 'Peace of mind', 'No rate risk'],
+    cons: ['Higher initial rate', 'No benefit from rate decreases', 'Harder to qualify', 'Opportunity cost if rates fall'],
+    riskLevel: 'low',
+    marketShare: 85,
     color: '#3B82F6',
-    icon: Anchor
+    icon: Anchor,
+    historicalPerformance: [
+      { year: 2020, averageRate: 2.65, volatility: 0.2, marketCondition: 'Pandemic lows' },
+      { year: 2021, averageRate: 2.96, volatility: 0.4, marketCondition: 'Recovery begins' },
+      { year: 2022, averageRate: 5.34, volatility: 1.8, marketCondition: 'Inflation surge' },
+      { year: 2023, averageRate: 7.09, volatility: 0.9, marketCondition: 'Peak rates' },
+      { year: 2024, averageRate: 6.75, volatility: 0.6, marketCondition: 'Stabilization' }
+    ]
   },
   {
     id: 'variable',
@@ -78,12 +172,174 @@ const rateScenarios: RateScenario[] = [
     type: 'variable',
     initialRate: 6.25,
     description: 'Rates that flow with market currents, offering thrills and potential savings',
-    pros: ['Lower initial rate', 'Benefit from rate decreases', 'Easier qualification', 'Potential savings'],
-    cons: ['Payment uncertainty', 'Risk of rate increases', 'Budgeting challenges'],
+    pros: ['Lower initial rate', 'Benefit from rate decreases', 'Easier qualification', 'Potential savings', 'Market flexibility'],
+    cons: ['Payment uncertainty', 'Risk of rate increases', 'Budgeting challenges', 'Stress from volatility'],
+    riskLevel: 'high',
+    marketShare: 12,
     color: '#10B981',
-    icon: Waves
+    icon: Waves,
+    historicalPerformance: [
+      { year: 2020, averageRate: 2.15, volatility: 1.2, marketCondition: 'Historic lows' },
+      { year: 2021, averageRate: 2.46, volatility: 1.8, marketCondition: 'Gradual increase' },
+      { year: 2022, averageRate: 4.84, volatility: 2.4, marketCondition: 'Rapid rise' },
+      { year: 2023, averageRate: 6.59, volatility: 1.6, marketCondition: 'Peak volatility' },
+      { year: 2024, averageRate: 6.25, volatility: 1.1, marketCondition: 'Moderating' }
+    ]
+  },
+  {
+    id: 'adjustable',
+    name: '5/1 Adjustable',
+    type: 'adjustable',
+    initialRate: 6.15,
+    adjustmentPeriod: 60,
+    capRate: 10.15,
+    floorRate: 4.15,
+    description: 'Fixed for 5 years, then adjusts annually. Best of both worlds for medium-term planning',
+    pros: ['Lower initial rate than fixed', '5 years of payment stability', 'Rate caps protect against extreme increases', 'Good for medium-term ownership'],
+    cons: ['Rate uncertainty after 5 years', 'Potential payment shock', 'Complex terms', 'Refinancing risk'],
+    riskLevel: 'medium',
+    marketShare: 3,
+    color: '#F59E0B',
+    icon: Shield,
+    historicalPerformance: [
+      { year: 2020, averageRate: 2.45, volatility: 0.8, marketCondition: 'ARM revival' },
+      { year: 2021, averageRate: 2.76, volatility: 1.1, marketCondition: 'Growing popularity' },
+      { year: 2022, averageRate: 4.19, volatility: 1.9, marketCondition: 'Market shift' },
+      { year: 2023, averageRate: 5.89, volatility: 1.3, marketCondition: 'Cooling demand' },
+      { year: 2024, averageRate: 6.15, volatility: 0.9, marketCondition: 'Niche product' }
+    ]
   }
 ];
+
+// Advanced Economic Modeling Engine
+const generateAdvancedEconomicIndicators = (month: number): EconomicIndicator[] => {
+  const cyclePosition = (month / 12) % 8; // 8-year economic cycle
+  const indicators: EconomicIndicator[] = [
+    {
+      name: 'Federal Funds Rate',
+      value: 5.25 + Math.sin(cyclePosition * Math.PI / 4) * 2,
+      trend: cyclePosition < 2 ? 'up' : cyclePosition < 6 ? 'stable' : 'down',
+      impact: cyclePosition < 3 ? 'negative' : 'positive',
+      weight: 0.4
+    },
+    {
+      name: 'Inflation (CPI)',
+      value: 3.2 + Math.cos(cyclePosition * Math.PI / 3) * 1.8,
+      trend: cyclePosition < 1.5 || cyclePosition > 6.5 ? 'up' : 'down',
+      impact: cyclePosition > 4 ? 'negative' : 'positive',
+      weight: 0.25
+    },
+    {
+      name: 'Unemployment Rate',
+      value: 4.1 + Math.sin((cyclePosition + 1) * Math.PI / 4) * 1.5,
+      trend: cyclePosition > 2 && cyclePosition < 5 ? 'up' : 'down',
+      impact: cyclePosition < 3 || cyclePosition > 6 ? 'positive' : 'negative',
+      weight: 0.15
+    },
+    {
+      name: 'GDP Growth',
+      value: 2.1 + Math.cos(cyclePosition * Math.PI / 2) * 1.2,
+      trend: cyclePosition < 4 ? 'up' : 'down',
+      impact: cyclePosition < 2 || cyclePosition > 6 ? 'positive' : 'neutral',
+      weight: 0.1
+    },
+    {
+      name: '10-Year Treasury',
+      value: 4.15 + Math.sin(cyclePosition * Math.PI / 3) * 1.8,
+      trend: Math.random() > 0.5 ? 'up' : 'down',
+      impact: 'neutral',
+      weight: 0.1
+    }
+  ];
+  
+  return indicators;
+};
+
+const generateCentralBankPolicy = (month: number): CentralBankPolicy => {
+  const cyclePosition = (month / 12) % 8;
+  const baseRate = 5.25;
+  
+  let stance: CentralBankPolicy['stance'] = 'neutral';
+  let probabilities = { raise: 0.2, hold: 0.6, cut: 0.2 };
+  
+  if (cyclePosition < 2) {
+    stance = 'hawkish';
+    probabilities = { raise: 0.7, hold: 0.25, cut: 0.05 };
+  } else if (cyclePosition > 6) {
+    stance = 'dovish';
+    probabilities = { raise: 0.05, hold: 0.25, cut: 0.7 };
+  }
+  
+  return {
+    currentRate: baseRate,
+    nextMeetingDate: new Date(Date.now() + (45 - (month % 45)) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    stance,
+    probability: probabilities
+  };
+};
+
+// Advanced Risk Assessment Engine
+const calculateRiskAssessment = (loanDetails: LoanDetails, personalFactors: PersonalizedFactors, timelineData: RateTimelineStep[]): RiskAssessment => {
+  const maxVariableRate = Math.max(...timelineData.map(step => step.variableRate));
+  const currentPayment = calculateMonthlyPayment(loanDetails.principal, 6.25 / 100, loanDetails.termYears * 12);
+  const maxPayment = calculateMonthlyPayment(loanDetails.principal, maxVariableRate / 100, loanDetails.termYears * 12);
+  const paymentShock = ((maxPayment - currentPayment) / currentPayment) * 100;
+  
+  const stressTests: StressTestResult[] = [
+    {
+      scenario: 'Recession + Rate Cuts',
+      maxRate: 4.5,
+      maxPayment: calculateMonthlyPayment(loanDetails.principal, 4.5 / 100, loanDetails.termYears * 12),
+      affordabilityRisk: 'low'
+    },
+    {
+      scenario: 'Inflation Surge',
+      maxRate: 9.5,
+      maxPayment: calculateMonthlyPayment(loanDetails.principal, 9.5 / 100, loanDetails.termYears * 12),
+      affordabilityRisk: paymentShock > 30 ? 'high' : paymentShock > 15 ? 'medium' : 'low'
+    },
+    {
+      scenario: 'Gradual Normalization',
+      maxRate: 7.25,
+      maxPayment: calculateMonthlyPayment(loanDetails.principal, 7.25 / 100, loanDetails.termYears * 12),
+      affordabilityRisk: paymentShock > 20 ? 'medium' : 'low'
+    }
+  ];
+  
+  const scenarios: ScenarioResult[] = [
+    {
+      name: 'Rates Fall 2%',
+      probability: 0.25,
+      outcomeFixed: 0,
+      outcomeVariable: 85000,
+      difference: 85000
+    },
+    {
+      name: 'Rates Stay Stable',
+      probability: 0.4,
+      outcomeFixed: 0,
+      outcomeVariable: 15000,
+      difference: 15000
+    },
+    {
+      name: 'Rates Rise 2%',
+      probability: 0.35,
+      outcomeFixed: 0,
+      outcomeVariable: -65000,
+      difference: -65000
+    }
+  ];
+  
+  const probabilityOfRegret = personalFactors.riskTolerance === 'conservative' ? 0.4 : 
+                              personalFactors.riskTolerance === 'moderate' ? 0.25 : 0.15;
+  
+  return {
+    paymentShock,
+    probabilityOfRegret,
+    stressTestResults: stressTests,
+    scenarioAnalysis: scenarios
+  };
+};
 
 // Generate realistic rate timeline with economic cycles
 const generateRateTimeline = (loanDetails: LoanDetails): RateTimelineStep[] => {
@@ -198,6 +454,10 @@ const generateRateTimeline = (loanDetails: LoanDetails): RateTimelineStep[] => {
     else if (weatherCondition === 'stormy') weatherIcon = CloudRain;
     else if (weatherCondition === 'hurricane') weatherIcon = Zap;
     
+    const economicIndicators = generateAdvancedEconomicIndicators(month);
+    const centralBankPolicy = generateCentralBankPolicy(month);
+    const forecastConfidence = Math.max(60, 95 - (severity * 0.4));
+    
     const economicWeather: EconomicWeather = {
       condition: weatherCondition,
       temperature,
@@ -205,7 +465,10 @@ const generateRateTimeline = (loanDetails: LoanDetails): RateTimelineStep[] => {
       description: weatherDescription || 'Steady economic conditions',
       impact: weatherImpact || 'Minimal rate volatility expected',
       icon: weatherIcon,
-      severity
+      severity,
+      confidence: forecastConfidence,
+      economicIndicators,
+      centralBankPolicy
     };
     
     steps.push({
@@ -229,7 +492,100 @@ const calculateMonthlyPayment = (principal: number, monthlyRate: number, months:
   return principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
 };
 
-// Rate River Visualization
+// Advanced Economic Dashboard
+const EconomicDashboard = ({ 
+  currentStep 
+}: { 
+  currentStep: RateTimelineStep | null;
+}) => {
+  if (!currentStep) return null;
+  
+  return (
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 mb-8">
+      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <TrendingUp className="w-6 h-6 text-blue-400" />
+        Economic Intelligence Dashboard
+      </h3>
+      
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {currentStep.economicWeather.economicIndicators.map((indicator, idx) => (
+          <motion.div
+            key={indicator.name}
+            className="p-4 bg-white/5 rounded-2xl border border-white/10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-400">{indicator.name}</span>
+              <motion.div
+                className={`w-2 h-2 rounded-full ${
+                  indicator.trend === 'up' ? 'bg-green-400' :
+                  indicator.trend === 'down' ? 'bg-red-400' : 'bg-yellow-400'
+                }`}
+                animate={indicator.trend !== 'stable' ? {
+                  scale: [1, 1.3, 1],
+                  opacity: [1, 0.7, 1]
+                } : {}}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </div>
+            <div className="text-lg font-bold text-white mb-1">
+              {indicator.value.toFixed(1)}%
+            </div>
+            <div className={`text-xs ${
+              indicator.impact === 'positive' ? 'text-green-400' :
+              indicator.impact === 'negative' ? 'text-red-400' : 'text-gray-400'
+            }`}>
+              {indicator.impact === 'positive' ? '↗ Positive' :
+               indicator.impact === 'negative' ? '↘ Negative' : '→ Neutral'}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      
+      {/* Central Bank Policy */}
+      <div className="p-4 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-500/20">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-purple-400" />
+            <span className="font-semibold text-white">Fed Policy Outlook</span>
+          </div>
+          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+            currentStep.economicWeather.centralBankPolicy.stance === 'hawkish' ? 'bg-red-500/20 text-red-400' :
+            currentStep.economicWeather.centralBankPolicy.stance === 'dovish' ? 'bg-green-500/20 text-green-400' :
+            'bg-yellow-500/20 text-yellow-400'
+          }`}>
+            {currentStep.economicWeather.centralBankPolicy.stance.toUpperCase()}
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div className="text-sm text-gray-400">Rate Hike</div>
+            <div className="text-lg font-bold text-red-400">
+              {Math.round(currentStep.economicWeather.centralBankPolicy.probability.raise * 100)}%
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-400">Hold Steady</div>
+            <div className="text-lg font-bold text-yellow-400">
+              {Math.round(currentStep.economicWeather.centralBankPolicy.probability.hold * 100)}%
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-400">Rate Cut</div>
+            <div className="text-lg font-bold text-green-400">
+              {Math.round(currentStep.economicWeather.centralBankPolicy.probability.cut * 100)}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Rate River Visualization
 const RateRiver = ({ 
   currentStep, 
   isPlaying, 
@@ -314,69 +670,72 @@ const RateRiver = ({
           ))}
         </div>
         
-        {/* Rate boats */}
-        <div className="absolute inset-0 flex items-center justify-around px-12">
-          {/* Fixed Rate Boat */}
-          <motion.div
-            className="relative"
-            animate={isPlaying ? {
-              y: [0, -8, 0],
-              rotateZ: [-2, 2, -2]
-            } : {}}
-            transition={{ duration: 2.5, repeat: Infinity }}
-          >
-            <div className="w-24 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center relative overflow-hidden">
-              <Anchor className="w-8 h-8 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
-              
-              {/* Stability indicator */}
-              <motion.div
-                className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-blue-500/80 rounded-full text-xs text-white font-medium"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                {currentStep.fixedRate.toFixed(2)}%
-              </motion.div>
-            </div>
+        {/* Enhanced Rate boats with more scenarios */}
+        <div className="absolute inset-0 flex items-center justify-around px-8">
+          {rateScenarios.map((scenario, idx) => {
+            let currentRate = scenario.type === 'fixed' ? currentStep.fixedRate :
+                             scenario.type === 'variable' ? currentStep.variableRate :
+                             currentStep.variableRate + 0.1; // ARM slightly different
             
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
-              <div className="text-xs text-blue-400 font-medium">Fixed</div>
-              <div className="text-xs text-gray-400">Steady sailing</div>
-            </div>
-          </motion.div>
-          
-          {/* Variable Rate Boat */}
-          <motion.div
-            className="relative"
-            animate={isPlaying ? {
-              y: [0, -12 * weatherIntensity, 0],
-              rotateZ: [-5 * weatherIntensity, 5 * weatherIntensity, -5 * weatherIntensity],
-              x: [-3 * weatherIntensity, 3 * weatherIntensity, -3 * weatherIntensity]
-            } : {}}
-            transition={{ duration: 1.8, repeat: Infinity }}
-          >
-            <div className="w-24 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center relative overflow-hidden">
-              <Waves className="w-8 h-8 text-white" />
-              <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
-              
-              {/* Rate indicator with volatility */}
-              <motion.div
-                className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-green-500/80 rounded-full text-xs text-white font-medium"
-                animate={{
-                  scale: [1, 1.1 + weatherIntensity * 0.2, 1],
-                  y: [-2 * weatherIntensity, 2 * weatherIntensity, -2 * weatherIntensity]
-                }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                {currentStep.variableRate.toFixed(2)}%
-              </motion.div>
-            </div>
+            const ScenarioIcon = scenario.icon;
             
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
-              <div className="text-xs text-green-400 font-medium">Variable</div>
-              <div className="text-xs text-gray-400">Riding the waves</div>
-            </div>
-          </motion.div>
+            return (
+              <motion.div
+                key={scenario.id}
+                className="relative"
+                animate={isPlaying ? {
+                  y: scenario.type === 'fixed' ? [0, -6, 0] : [0, -12 * weatherIntensity, 0],
+                  rotateZ: scenario.type === 'fixed' ? [-1, 1, -1] : [-5 * weatherIntensity, 5 * weatherIntensity, -5 * weatherIntensity],
+                  x: scenario.type === 'variable' ? [-3 * weatherIntensity, 3 * weatherIntensity, -3 * weatherIntensity] : 0
+                } : {}}
+                transition={{ duration: scenario.type === 'fixed' ? 3 : 1.8, repeat: Infinity }}
+              >
+                <div 
+                  className="w-20 h-14 rounded-xl flex items-center justify-center relative overflow-hidden"
+                  style={{ background: `linear-gradient(135deg, ${scenario.color}, ${scenario.color}dd)` }}
+                >
+                  <ScenarioIcon className="w-6 h-6 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/10 to-transparent" />
+                  
+                  {/* Risk level indicator */}
+                  <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                    scenario.riskLevel === 'low' ? 'bg-green-400' :
+                    scenario.riskLevel === 'medium' ? 'bg-yellow-400' : 'bg-red-400'
+                  }`} />
+                  
+                  {/* Rate indicator with dynamic styling */}
+                  <motion.div
+                    className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-2 py-1 rounded-full text-xs text-white font-medium"
+                    style={{ backgroundColor: `${scenario.color}cc` }}
+                    animate={scenario.type !== 'fixed' ? {
+                      scale: [1, 1.1 + weatherIntensity * 0.15, 1],
+                      y: [-2 * weatherIntensity, 2 * weatherIntensity, -2 * weatherIntensity]
+                    } : {
+                      scale: [1, 1.03, 1]
+                    }}
+                    transition={{ duration: scenario.type === 'fixed' ? 3 : 1.5, repeat: Infinity }}
+                  >
+                    {currentRate.toFixed(2)}%
+                  </motion.div>
+                </div>
+                
+                <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
+                  <div className="text-xs font-medium" style={{ color: scenario.color }}>
+                    {scenario.name}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {scenario.marketShare}% market
+                  </div>
+                  <div className={`text-xs mt-1 ${
+                    scenario.riskLevel === 'low' ? 'text-green-400' :
+                    scenario.riskLevel === 'medium' ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {scenario.riskLevel} risk
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
         
         {/* Weather overlay */}
@@ -512,11 +871,297 @@ const TimelineNavigator = ({
   );
 };
 
+// Advanced Risk Assessment Component
+const RiskAssessmentPanel = ({ 
+  riskAssessment, 
+  loanDetails 
+}: { 
+  riskAssessment: RiskAssessment;
+  loanDetails: LoanDetails;
+}) => {
+  return (
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <AlertTriangle className="w-6 h-6 text-yellow-400" />
+        Risk Assessment & Stress Testing
+      </h3>
+      
+      {/* Payment Shock Analysis */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="p-6 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-2xl border border-red-500/20">
+          <div className="flex items-center gap-3 mb-4">
+            <Zap className="w-8 h-8 text-red-400" />
+            <div>
+              <h4 className="text-lg font-semibold text-white">Maximum Payment Shock</h4>
+              <p className="text-sm text-gray-400">Worst-case scenario increase</p>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-red-400 mb-2">
+            +{riskAssessment.paymentShock.toFixed(1)}%
+          </div>
+          <div className="text-sm text-gray-300">
+            Your payment could increase by up to ${(calculateMonthlyPayment(loanDetails.principal, 6.25 / 100, loanDetails.termYears * 12) * riskAssessment.paymentShock / 100).toLocaleString()}/month
+          </div>
+        </div>
+        
+        <div className="p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20">
+          <div className="flex items-center gap-3 mb-4">
+            <Brain className="w-8 h-8 text-purple-400" />
+            <div>
+              <h4 className="text-lg font-semibold text-white">Probability of Regret</h4>
+              <p className="text-sm text-gray-400">Chance of wishing you chose differently</p>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-purple-400 mb-2">
+            {Math.round(riskAssessment.probabilityOfRegret * 100)}%
+          </div>
+          <div className="text-sm text-gray-300">
+            Based on your risk profile and market volatility
+          </div>
+        </div>
+      </div>
+      
+      {/* Stress Test Results */}
+      <div className="mb-8">
+        <h4 className="text-lg font-semibold text-white mb-4">Stress Test Scenarios</h4>
+        <div className="space-y-4">
+          {riskAssessment.stressTestResults.map((test, idx) => (
+            <motion.div
+              key={test.scenario}
+              className="p-4 bg-white/5 rounded-2xl border border-white/10"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-white">{test.scenario}</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  test.affordabilityRisk === 'low' ? 'bg-green-500/20 text-green-400' :
+                  test.affordabilityRisk === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {test.affordabilityRisk.toUpperCase()} RISK
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-gray-400">Max Rate: </span>
+                  <span className="text-white font-medium">{test.maxRate.toFixed(2)}%</span>
+                </div>
+                <div>
+                  <span className="text-gray-400">Max Payment: </span>
+                  <span className="text-white font-medium">${test.maxPayment.toLocaleString()}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Scenario Analysis */}
+      <div>
+        <h4 className="text-lg font-semibold text-white mb-4">Future Scenarios Analysis</h4>
+        <div className="space-y-3">
+          {riskAssessment.scenarioAnalysis.map((scenario, idx) => (
+            <motion.div
+              key={scenario.name}
+              className="p-4 bg-white/5 rounded-2xl border border-white/10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-white">{scenario.name}</span>
+                  <span className="text-xs text-gray-400">{Math.round(scenario.probability * 100)}% likely</span>
+                </div>
+                <div className={`text-lg font-bold ${
+                  scenario.difference > 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {scenario.difference > 0 ? '+' : ''}${scenario.difference.toLocaleString()}
+                </div>
+              </div>
+              
+              {/* Probability bar */}
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <motion.div
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${scenario.probability * 100}%` }}
+                  transition={{ duration: 1, delay: idx * 0.2 }}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Personalized Recommendation Engine
+const PersonalizedRecommendation = ({ 
+  personalFactors, 
+  riskAssessment, 
+  timelineData 
+}: { 
+  personalFactors: PersonalizedFactors;
+  riskAssessment: RiskAssessment;
+  timelineData: RateTimelineStep[];
+}) => {
+  const finalStep = timelineData[timelineData.length - 1];
+  const totalSavings = finalStep.cumulativeSavings;
+  
+  const getPersonalizedRecommendation = () => {
+    // Weight factors based on personal preferences
+    const riskWeight = personalFactors.riskTolerance === 'conservative' ? 0.6 : 
+                      personalFactors.riskTolerance === 'moderate' ? 0.4 : 0.2;
+    const savingsWeight = 1 - riskWeight;
+    
+    const riskScore = riskAssessment.paymentShock / 100 * riskWeight;
+    const savingsScore = Math.max(0, totalSavings / 100000) * savingsWeight;
+    
+    const overallScore = savingsScore - riskScore;
+    
+    let recommendation: 'fixed' | 'variable' | 'adjustable' = 'fixed';
+    let confidence = 0.7;
+    let reasons: string[] = [];
+    
+    if (overallScore > 0.3) {
+      recommendation = personalFactors.timeHorizon < 5 ? 'adjustable' : 'variable';
+      confidence = Math.min(0.95, 0.7 + overallScore);
+      reasons = [
+        `Your ${personalFactors.riskTolerance} risk tolerance aligns with potential savings`,
+        'Market conditions favor rate flexibility',
+        `${personalFactors.timeHorizon}-year time horizon supports this choice`,
+        'Stress test results show manageable payment increases'
+      ];
+    } else if (overallScore < -0.2) {
+      recommendation = 'fixed';
+      confidence = Math.min(0.95, 0.7 + Math.abs(overallScore));
+      reasons = [
+        'Payment stability aligns with your conservative approach',
+        'Protection from potential rate increases',
+        'Simplified budgeting and financial planning',
+        'Lower stress from payment uncertainty'
+      ];
+    } else {
+      recommendation = 'adjustable';
+      confidence = 0.75;
+      reasons = [
+        'Hybrid approach balances risk and reward',
+        'Initial period provides payment certainty',
+        'Flexibility for future refinancing options',
+        'Moderate risk profile supports this strategy'
+      ];
+    }
+    
+    return { recommendation, confidence, reasons, overallScore };
+  };
+  
+  const personalRec = getPersonalizedRecommendation();
+  const recommendedScenario = rateScenarios.find(s => s.type === personalRec.recommendation);
+  
+  return (
+    <div className="bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-xl border border-blue-500/20 rounded-3xl p-8">
+      <div className="text-center mb-8">
+        <Lightbulb className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+        <h2 className="text-3xl font-bold text-white mb-4">Your Personalized Recommendation</h2>
+        <div className="flex items-center justify-center gap-4 mb-4">
+          {recommendedScenario && (
+            <div className="flex items-center gap-3 px-6 py-3 rounded-full border" 
+                 style={{ backgroundColor: `${recommendedScenario.color}20`, borderColor: `${recommendedScenario.color}40` }}>
+              <recommendedScenario.icon className="w-6 h-6" style={{ color: recommendedScenario.color }} />
+              <span className="text-xl font-bold text-white">
+                {recommendedScenario.name.toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div className="text-2xl font-bold text-white">
+            {Math.round(personalRec.confidence * 100)}% Match
+          </div>
+        </div>
+      </div>
+      
+      {/* Personal Factors Summary */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="text-center p-4 bg-white/5 rounded-2xl">
+          <div className="text-sm text-gray-400 mb-1">Risk Tolerance</div>
+          <div className={`text-lg font-bold ${
+            personalFactors.riskTolerance === 'conservative' ? 'text-blue-400' :
+            personalFactors.riskTolerance === 'moderate' ? 'text-yellow-400' : 'text-red-400'
+          }`}>
+            {personalFactors.riskTolerance}
+          </div>
+        </div>
+        <div className="text-center p-4 bg-white/5 rounded-2xl">
+          <div className="text-sm text-gray-400 mb-1">Time Horizon</div>
+          <div className="text-lg font-bold text-white">
+            {personalFactors.timeHorizon} years
+          </div>
+        </div>
+        <div className="text-center p-4 bg-white/5 rounded-2xl">
+          <div className="text-sm text-gray-400 mb-1">Payment Style</div>
+          <div className="text-lg font-bold text-white capitalize">
+            {personalFactors.paymentStability}
+          </div>
+        </div>
+        <div className="text-center p-4 bg-white/5 rounded-2xl">
+          <div className="text-sm text-gray-400 mb-1">Market View</div>
+          <div className="text-lg font-bold text-white capitalize">
+            {personalFactors.marketOutlook}
+          </div>
+        </div>
+        <div className="text-center p-4 bg-white/5 rounded-2xl">
+          <div className="text-sm text-gray-400 mb-1">Match Score</div>
+          <div className="text-lg font-bold text-green-400">
+            {Math.round((personalRec.overallScore + 0.5) * 100)}/100
+          </div>
+        </div>
+      </div>
+      
+      {/* Reasoning */}
+      <div className="p-6 bg-white/5 rounded-2xl">
+        <h4 className="text-lg font-semibold text-white mb-4">Why this recommendation?</h4>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {personalRec.reasons.map((reason, idx) => (
+            <motion.div
+              key={idx}
+              className="flex items-start gap-3"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.15 }}
+            >
+              <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-300">{reason}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Financial Goals Alignment */}
+      <div className="mt-6 p-4 bg-white/5 rounded-2xl">
+        <h4 className="text-sm font-semibold text-white mb-3">Goals Alignment</h4>
+        <div className="flex flex-wrap gap-2">
+          {personalFactors.financialGoals.map((goal, idx) => (
+            <span key={idx} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+              {goal}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function RateNavigatorPage() {
   const [currentMonth, setCurrentMonth] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timelineData] = useState(() => generateRateTimeline(mockLoanDetails));
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [personalFactors] = useState(mockPersonalFactors);
+  const [showAdvancedAnalysis, setShowAdvancedAnalysis] = useState(false);
+  const [riskAssessment] = useState(() => calculateRiskAssessment(mockLoanDetails, mockPersonalFactors, generateRateTimeline(mockLoanDetails)));
 
   const currentStep = timelineData[currentMonth];
   const maxMonths = timelineData.length;
@@ -656,6 +1301,9 @@ export default function RateNavigatorPage() {
             </motion.div>
           </motion.div>
 
+          {/* Economic Dashboard */}
+          <EconomicDashboard currentStep={currentStep} />
+          
           {/* Main Content */}
           <div className="max-w-7xl mx-auto px-6 pb-12">
             {/* Rate River Visualization */}
@@ -817,6 +1465,49 @@ export default function RateNavigatorPage() {
               </motion.div>
             )}
 
+            {/* Advanced Analysis Toggle */}
+            <motion.div
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+            >
+              <motion.button
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-white font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                onClick={() => setShowAdvancedAnalysis(!showAdvancedAnalysis)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {showAdvancedAnalysis ? 'Hide' : 'Show'} Advanced Analysis & Risk Assessment
+              </motion.button>
+            </motion.div>
+            
+            {/* Advanced Analysis Panels */}
+            <AnimatePresence>
+              {showAdvancedAnalysis && (
+                <motion.div
+                  className="space-y-8 mb-8"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  {/* Personalized Recommendation */}
+                  <PersonalizedRecommendation
+                    personalFactors={personalFactors}
+                    riskAssessment={riskAssessment}
+                    timelineData={timelineData}
+                  />
+                  
+                  {/* Risk Assessment */}
+                  <RiskAssessmentPanel
+                    riskAssessment={riskAssessment}
+                    loanDetails={mockLoanDetails}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
             {/* Final Recommendation */}
             {currentMonth >= maxMonths - 1 && (
               <motion.div
