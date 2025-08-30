@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, useInView }
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { ChevronDown, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 // Advanced Physics-Based Particle System
 interface Particle {
@@ -397,6 +398,7 @@ const ScrollIndicator = () => {
 // Main Cinematic Hero Component
 export default function CinematicHero() {
   const { data: session } = useSession();
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -413,7 +415,7 @@ export default function CinematicHero() {
     return 'Good Evening';
   };
 
-  const userName = session?.user?.name?.split(' ')[0] || 'Explorer';
+  const userName = session?.user?.name?.split(' ')[0] || 'Ritwik';
 
   return (
     <motion.section
@@ -500,13 +502,19 @@ export default function CinematicHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 3 }}
         >
-          <LiquidCTA className="bg-white/10 hover:bg-white/20">
+          <LiquidCTA 
+            className="bg-white/10 hover:bg-white/20"
+            onClick={() => router.push('/dashboard')}
+          >
             <Sparkles className="w-5 h-5" />
             Explore Dashboard
             <ArrowRight className="w-5 h-5" />
           </LiquidCTA>
           
-          <LiquidCTA className="bg-transparent border-white/40">
+          <LiquidCTA 
+            className="bg-transparent border-white/40"
+            onClick={() => router.push('/investments')}
+          >
             <TrendingUp className="w-5 h-5" />
             View Portfolio
           </LiquidCTA>

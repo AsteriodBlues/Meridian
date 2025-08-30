@@ -31,7 +31,7 @@ export default {
           if (password === 'demo123' || email.includes('demo')) {
             return {
               id: '1',
-              name: 'Demo User',
+              name: 'Ritwik',
               email: email,
               image: null,
             };
