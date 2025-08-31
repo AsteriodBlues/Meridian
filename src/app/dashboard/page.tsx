@@ -11,6 +11,7 @@ import HeroMetrics from '@/components/dashboard/HeroMetrics';
 import SpendingSpeedometer from '@/components/dashboard/SpendingSpeedometer';
 import IncomeStreams from '@/components/dashboard/IncomeStreams';
 import InvestmentPerformance from '@/components/dashboard/InvestmentPerformance';
+import NetIncomeVisualization from '@/components/dashboard/NetIncomeVisualization';
 import { BentoGrid, MetricCard, ChartCard, QuickActionCard } from '@/components/dashboard/BentoGrid';
 import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-react';
 
@@ -260,6 +261,34 @@ export default function DashboardPage() {
               </ParallaxScroll>
             </AwwardsScrollReveal>
           </div>
+        </GoldenSection>
+
+        {/* Net Income Analytics Section */}
+        <GoldenSection spacing="spacious">
+          <AwwardsScrollReveal animation="fadeUp" delay={0.2}>
+            <div className="text-center mb-8">
+              <SplitTextAnimation 
+                animation="slideUp" 
+                className="text-headline text-3xl text-white mb-4"
+              >
+                Net Income Analytics
+              </SplitTextAnimation>
+              <SplitWordsAnimation 
+                animation="fadeIn" 
+                delay={0.3} 
+                staggerDelay={0.05}
+                className="text-body text-gray-400 max-w-2xl mx-auto"
+              >
+                Track your financial performance with beautiful Aurora-powered visualizations
+              </SplitWordsAnimation>
+            </div>
+          </AwwardsScrollReveal>
+
+          <AwwardsScrollReveal animation="scale" delay={0.4}>
+            <Magnetic strength={0.15}>
+              <NetIncomeVisualization />
+            </Magnetic>
+          </AwwardsScrollReveal>
         </GoldenSection>
 
         {/* Financial Health Overview */}
