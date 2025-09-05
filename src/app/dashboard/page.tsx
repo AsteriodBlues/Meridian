@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TimeBasedBackground from '@/components/dashboard/TimeBasedBackground';
 import ScrollProgress from '@/components/dashboard/ScrollProgress';
 import MagneticCursor from '@/components/ui/MagneticCursor';
@@ -19,6 +19,7 @@ import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-rea
 import SplitTextAnimation, { SplitWordsAnimation, MaskTextReveal } from '@/components/typography/SplitTextAnimation';
 import { GoldenContainer, GoldenGrid, GoldenSection, GoldenCard } from '@/components/layout/GoldenLayout';
 import { ScrollReveal as AwwardsScrollReveal, Magnetic, ParallaxScroll, StaggerContainer, FloatingParticles, LiquidLoader } from '@/components/animations/AwwardsAnimations';
+import { BauhausLoadingScreen } from '@/components/ui/ModernLoader';
 import CinematicHero from '@/components/hero/CinematicHero';
 import PageLayout from '@/components/layout/PageLayout';
 import { SwipeHandler, PullToRefresh } from '@/components/navigation/PageTransitions';
@@ -26,21 +27,23 @@ import { SwipeHandler, PullToRefresh } from '@/components/navigation/PageTransit
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+
+  // Add minimum loading time to ensure user can see the beautiful loading screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadingComplete(true);
+    }, 2500); // 2.5 seconds minimum
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Remove the redirect useEffect to prevent redirect loop
   // The middleware already handles authentication redirects
 
-  if (status === 'loading') {
+  if (status === 'loading' || !minLoadingComplete) {
     return (
-      <div className="min-h-screen bg-luxury-950 flex items-center justify-center relative overflow-hidden">
-        <FloatingParticles count={30} />
-        <div className="relative z-10 text-center">
-          <LiquidLoader size={80} color="#667eea" className="mb-4 mx-auto" />
-          <SplitTextAnimation animation="fadeIn" staggerDelay={0.05}>
-            Loading your financial universe...
-          </SplitTextAnimation>
-        </div>
-      </div>
+      <BauhausLoadingScreen />
     );
   }
 
