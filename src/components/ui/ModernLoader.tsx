@@ -92,7 +92,7 @@ export function BauhausLoader({ size = 160, className = '' }: BauhausLoaderProps
   );
 }
 
-export function MeridianLoadingScreen({ 
+export function AwwardsLoadingScreen({ 
   title = "MERIDIAN",
   subtitle = "Your Financial Companion",
   className = ""
@@ -103,99 +103,246 @@ export function MeridianLoadingScreen({
 }) {
   return (
     <div className={`min-h-screen bg-luxury-950 flex items-center justify-center relative overflow-hidden ${className}`}>
-      {/* Aurora Background Animation */}
+      {/* Cinematic Background System */}
       <motion.div
-        className="absolute inset-0 aurora-gradient-slow opacity-30"
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.08) 35%, rgba(240, 147, 251, 0.05) 70%, transparent 100%)'
+        }}
         animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.2, 0.4, 0.2]
+          scale: [1, 1.3, 1.1, 1],
+          opacity: [0.3, 0.6, 0.4, 0.3]
         }}
         transition={{
-          duration: 8,
+          duration: 12,
           repeat: Infinity,
-          ease: "easeInOut"
+          ease: [0.25, 0.46, 0.45, 0.94]
         }}
       />
-      
-      {/* Floating Particles - matching dashboard */}
-      {[...Array(15)].map((_, i) => (
+
+      {/* Advanced Particle System */}
+      {[...Array(25)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 bg-trust-400 rounded-full opacity-60"
+          className="absolute rounded-full"
           style={{
+            width: Math.random() * 4 + 2,
+            height: Math.random() * 4 + 2,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
+            background: i % 3 === 0 ? '#60a5fa' : i % 3 === 1 ? '#a855f7' : '#22c55e',
+            filter: 'blur(0.5px)'
           }}
           animate={{
-            y: [0, -100, 0],
-            x: [0, Math.sin(i) * 50, 0],
-            opacity: [0.3, 0.8, 0.3],
-            scale: [0.5, 1.2, 0.5]
+            x: [
+              0, 
+              Math.sin(i * 0.5) * (Math.random() * 200 + 100),
+              Math.cos(i * 0.3) * (Math.random() * 150 + 75),
+              0
+            ],
+            y: [
+              0,
+              Math.cos(i * 0.7) * (Math.random() * 200 + 100), 
+              Math.sin(i * 0.4) * (Math.random() * 150 + 75),
+              0
+            ],
+            opacity: [0, 0.8, 0.4, 0],
+            scale: [0.5, 1.5, 1, 0.5]
           }}
           transition={{
-            duration: Math.random() * 6 + 4,
+            duration: Math.random() * 8 + 10,
             repeat: Infinity,
-            delay: Math.random() * 2,
-            ease: "easeInOut"
+            delay: Math.random() * 5,
+            ease: [0.25, 0.46, 0.45, 0.94]
           }}
         />
       ))}
 
-      {/* Glass Morphism Background Elements */}
+      {/* Sophisticated Glass Morphism Elements */}
       <motion.div
-        className="absolute top-1/4 left-1/4 w-32 h-32 glassmorphic rounded-2xl"
+        className="absolute top-20 left-20 glassmorphic rounded-3xl border border-white/5"
+        style={{ width: 180, height: 120 }}
         animate={{
-          rotate: [0, 360],
-          scale: [1, 1.2, 1]
+          rotate: [0, 15, -10, 5, 0],
+          scale: [1, 1.1, 0.95, 1.05, 1],
+          x: [-20, 20, -10, 10, 0],
+          y: [0, -30, 15, -15, 0]
         }}
         transition={{
-          rotate: { duration: 15, repeat: Infinity, ease: "linear" },
-          scale: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+          duration: 20,
+          repeat: Infinity,
+          ease: [0.25, 0.46, 0.45, 0.94]
         }}
       />
       
       <motion.div
-        className="absolute bottom-1/4 right-1/3 w-24 h-24 glassmorphic-dark rounded-xl"
+        className="absolute bottom-32 right-24 glassmorphic-dark rounded-2xl border border-white/10"
+        style={{ width: 140, height: 100 }}
         animate={{
-          rotate: [0, -180, 0],
-          y: [-20, 20, -20]
+          rotate: [0, -20, 12, -8, 0],
+          scale: [1, 0.9, 1.15, 0.98, 1],
+          x: [0, -25, 15, -10, 0],
+          y: [0, 20, -25, 10, 0]
         }}
         transition={{
-          rotate: { duration: 12, repeat: Infinity, ease: "linear" },
-          y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+          duration: 16,
+          repeat: Infinity,
+          ease: [0.25, 0.46, 0.45, 0.94]
         }}
       />
 
-      {/* Central Loading Area */}
+      <motion.div
+        className="absolute top-1/3 right-1/4 glassmorphic rounded-full border border-white/8"
+        style={{ width: 80, height: 80 }}
+        animate={{
+          scale: [1, 1.3, 0.8, 1.1, 1],
+          opacity: [0.6, 1, 0.4, 0.8, 0.6],
+          rotate: [0, 180, 360]
+        }}
+        transition={{
+          duration: 14,
+          repeat: Infinity,
+          ease: [0.25, 0.46, 0.45, 0.94]
+        }}
+      />
+
+      {/* Cinematic Central Loading System */}
       <div className="relative z-10 text-center">
-        {/* Premium Aurora Loader */}
+        {/* Advanced Multi-Layer Loader */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.5, rotateX: 90 }}
+          animate={{ opacity: 1, scale: 1, rotateX: 0 }}
           transition={{ 
-            duration: 1,
-            delay: 0.3,
+            duration: 2,
+            delay: 0.5,
             ease: [0.25, 0.46, 0.45, 0.94]
           }}
-          className="mb-12"
+          className="mb-16 relative"
+          style={{ perspective: '1000px' }}
         >
-          <div className="relative w-40 h-40 mx-auto">
-            {/* Outer Aurora Ring */}
+          <div className="relative w-52 h-52 mx-auto">
+            {/* Outer Orbital Ring */}
             <motion.div
-              className="absolute inset-0 rounded-full aurora-gradient"
+              className="absolute inset-0 rounded-full"
               style={{
                 background: 'conic-gradient(from 0deg, #667eea, #764ba2, #f093fb, #4facfe, #00f2fe, #667eea)',
-                maskImage: 'radial-gradient(circle, transparent 60%, black 65%, black 100%)'
+                maskImage: 'radial-gradient(circle, transparent 70%, black 75%, black 85%, transparent 90%)',
+                filter: 'blur(0.5px)'
               }}
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              animate={{ 
+                rotate: [0, 360],
+                scale: [1, 1.08, 1]
+              }}
+              transition={{ 
+                rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }}
             />
             
-            {/* Inner Trust Core */}
+            {/* Middle Pulse Ring */}
             <motion.div
-              className="absolute inset-6 rounded-full bg-gradient-to-br from-trust-400 via-wisdom-500 to-growth-400"
+              className="absolute inset-6 rounded-full"
+              style={{
+                background: 'conic-gradient(from 180deg, #22c55e, #a855f7, #3b82f6, #22c55e)',
+                maskImage: 'radial-gradient(circle, transparent 65%, black 70%, black 80%, transparent 85%)',
+                filter: 'blur(0.3px)'
+              }}
+              animate={{ 
+                rotate: [360, 0],
+                opacity: [0.6, 1, 0.6]
+              }}
+              transition={{ 
+                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                opacity: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+              }}
+            />
+            
+            {/* Inner Core with Advanced Gradient */}
+            <motion.div
+              className="absolute inset-12 rounded-full glassmorphic"
+              style={{
+                background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(102,126,234,0.4) 30%, rgba(168,85,247,0.3) 60%, rgba(34,197,94,0.2) 100%)',
+                boxShadow: '0 0 50px rgba(102, 126, 234, 0.3), inset 0 0 30px rgba(255, 255, 255, 0.1)'
+              }}
               animate={{
-                scale: [1, 1.1, 1],
+                scale: [0.8, 1.3, 0.9, 1.1, 0.8],
+                opacity: [0.7, 1, 0.8, 0.9, 0.7],
+                rotate: [0, 90, 180, 270, 360]
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: [0.25, 0.46, 0.45, 0.94]
+              }}
+            />
+
+            {/* Central Energy Dot */}
+            <motion.div
+              className="absolute inset-20 rounded-full bg-white"
+              style={{
+                boxShadow: '0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(102, 126, 234, 0.4)'
+              }}
+              animate={{
+                scale: [0.5, 1.2, 0.7, 1, 0.5],
+                opacity: [0.8, 1, 0.9, 1, 0.8]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </div>
+        </motion.div>
+        
+        {/* Cinematic Typography */}
+        <motion.div
+          initial={{ opacity: 0, y: 50, rotateX: -30 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{ duration: 2, delay: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-8"
+          style={{ perspective: '1000px' }}
+        >
+          <h1 className="text-display text-7xl font-bold tracking-wide relative">
+            {title.split('').map((char, i) => (
+              <motion.span
+                key={i}
+                className="inline-block aurora-text"
+                style={{ 
+                  textShadow: '0 0 20px rgba(102, 126, 234, 0.5)',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))'
+                }}
+                animate={{
+                  y: [0, -15, 5, -8, 0],
+                  rotateY: [0, 5, -3, 2, 0],
+                  scale: [1, 1.05, 0.98, 1.02, 1]
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: i * 0.2,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </motion.span>
+            ))}
+          </h1>
+          
+          {/* Advanced Animated Divider */}
+          <motion.div
+            className="flex justify-center relative"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ duration: 2.5, delay: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            <motion.div
+              className="h-1 w-48 rounded-full aurora-gradient relative"
+              style={{
+                boxShadow: '0 0 20px rgba(102, 126, 234, 0.6), 0 4px 12px rgba(0,0,0,0.3)'
+              }}
+              animate={{
+                scaleY: [1, 1.5, 1],
                 opacity: [0.8, 1, 0.8]
               }}
               transition={{
@@ -204,108 +351,82 @@ export function MeridianLoadingScreen({
                 ease: "easeInOut"
               }}
             />
-            
-            {/* Central Glow */}
-            <motion.div
-              className="absolute inset-12 rounded-full bg-white/20 glassmorphic"
-              animate={{
-                scale: [0.8, 1.2, 0.8],
-                opacity: [0.6, 1, 0.6]
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          </div>
-        </motion.div>
-        
-        {/* Aurora Typography */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="space-y-6"
-        >
-          <h1 className="text-display text-6xl font-bold aurora-text tracking-wide">
-            {title.split('').map((char, i) => (
-              <motion.span
-                key={i}
-                className="inline-block"
-                animate={{
-                  y: [0, -8, 0],
-                  opacity: [0.7, 1, 0.7]
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  delay: i * 0.15,
-                  ease: "easeInOut"
-                }}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </motion.span>
-            ))}
-          </h1>
-          
-          {/* Animated Divider */}
-          <motion.div
-            className="flex justify-center"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1.8, delay: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            <div className="h-0.5 w-40 aurora-gradient rounded-full"></div>
           </motion.div>
           
           <motion.p 
-            className="text-lg text-gray-300 font-medium tracking-wider"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.9 }}
-            transition={{ delay: 1.5, duration: 1 }}
+            className="text-xl text-gray-300 font-medium tracking-wider"
+            style={{
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 0.9, y: 0 }}
+            transition={{ delay: 2.2, duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {subtitle}
           </motion.p>
         </motion.div>
         
-        {/* Premium Progress Indicators */}
+        {/* Premium Progress System */}
         <motion.div
-          className="flex justify-center items-center space-x-6 mt-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
+          className="flex justify-center items-center space-x-8 mt-20"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2.8, duration: 1 }}
         >
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
               className="relative"
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.6, 1, 0.6]
+                scale: [1, 1.4, 1.1, 1],
+                opacity: [0.6, 1, 0.8, 0.6]
               }}
               transition={{
-                duration: 2,
+                duration: 3,
                 repeat: Infinity,
-                delay: i * 0.4,
-                ease: "easeInOut"
+                delay: i * 0.6,
+                ease: [0.25, 0.46, 0.45, 0.94]
               }}
             >
               <div className={`
-                w-3 h-3 rounded-full glassmorphic
+                w-4 h-4 rounded-full glassmorphic relative
                 ${i === 0 ? 'bg-trust-400' : i === 1 ? 'bg-wisdom-400' : 'bg-growth-400'}
-              `} />
-              <div className={`
-                absolute inset-0 rounded-full blur-md opacity-50
-                ${i === 0 ? 'bg-trust-400' : i === 1 ? 'bg-wisdom-400' : 'bg-growth-400'}
-              `} />
+              `} 
+                style={{
+                  boxShadow: `0 0 20px ${i === 0 ? 'rgba(96, 165, 250, 0.6)' : i === 1 ? 'rgba(168, 85, 247, 0.6)' : 'rgba(34, 197, 94, 0.6)'}`
+                }}
+              />
+              <motion.div 
+                className={`
+                  absolute inset-0 rounded-full blur-lg
+                  ${i === 0 ? 'bg-trust-400' : i === 1 ? 'bg-wisdom-400' : 'bg-growth-400'}
+                `}
+                animate={{
+                  scale: [1, 2, 1],
+                  opacity: [0.3, 0.7, 0.3]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: i * 0.6,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
           ))}
         </motion.div>
       </div>
       
-      {/* Noise Overlay for Premium Feel */}
-      <div className="absolute inset-0 noise-overlay opacity-30 pointer-events-none" />
+      {/* Advanced Visual Effects */}
+      <div className="absolute inset-0 noise-overlay opacity-20 pointer-events-none" />
+      
+      {/* Cinematic Vignette */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at center, transparent 40%, rgba(10, 10, 11, 0.3) 80%, rgba(10, 10, 11, 0.6) 100%)'
+        }}
+      />
     </div>
   );
 }
