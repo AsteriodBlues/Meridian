@@ -339,17 +339,64 @@ const DesktopNavigation = () => {
     >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <motion.div
-            className="flex items-center gap-3"
+          {/* Logo - Enhanced with click functionality */}
+          <motion.button
+            className="flex items-center gap-3 group cursor-pointer"
+            onClick={() => router.push('/dashboard')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            title="Return to Dashboard"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">Meridian</span>
-          </motion.div>
+            {/* Animated Logo Icon */}
+            <motion.div 
+              className="relative w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center overflow-hidden"
+              whileHover={{ 
+                background: "linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4)",
+                rotate: [0, -5, 5, 0]
+              }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Sparkle animation on hover */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 -skew-x-12"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '200%' }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+              />
+              <Sparkles className="w-4 h-4 text-white relative z-10 group-hover:animate-pulse" />
+            </motion.div>
+            
+            {/* Animated Text */}
+            <motion.span 
+              className="text-xl font-bold text-white relative"
+              whileHover={{
+                textShadow: [
+                  "0 0 0px rgba(59, 130, 246, 0)",
+                  "0 0 20px rgba(59, 130, 246, 0.8)",
+                  "0 0 0px rgba(59, 130, 246, 0)"
+                ]
+              }}
+              transition={{ duration: 1, repeat: 1 }}
+            >
+              Meridian
+              {/* Subtle underline animation */}
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
+                initial={{ scaleX: 0 }}
+                whileHover={{ scaleX: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.span>
+            
+            {/* Hover tooltip */}
+            <motion.div
+              className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded opacity-0 pointer-events-none"
+              whileHover={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Go to Dashboard
+            </motion.div>
+          </motion.button>
 
           {/* Navigation Items */}
           <div className="hidden md:flex items-center gap-2">
