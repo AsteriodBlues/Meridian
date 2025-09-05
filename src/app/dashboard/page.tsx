@@ -19,7 +19,7 @@ import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-rea
 import SplitTextAnimation, { SplitWordsAnimation, MaskTextReveal } from '@/components/typography/SplitTextAnimation';
 import { GoldenContainer, GoldenGrid, GoldenSection, GoldenCard } from '@/components/layout/GoldenLayout';
 import { ScrollReveal as AwwardsScrollReveal, Magnetic, ParallaxScroll, StaggerContainer, FloatingParticles, LiquidLoader } from '@/components/animations/AwwardsAnimations';
-import { BauhausLoadingScreen } from '@/components/ui/ModernLoader';
+import { MeridianLoadingScreen } from '@/components/ui/ModernLoader';
 import CinematicHero from '@/components/hero/CinematicHero';
 import PageLayout from '@/components/layout/PageLayout';
 import { SwipeHandler, PullToRefresh } from '@/components/navigation/PageTransitions';
@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
   if (status === 'loading' || !minLoadingComplete) {
     return (
-      <BauhausLoadingScreen />
+      <MeridianLoadingScreen />
     );
   }
 
