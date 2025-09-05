@@ -19,7 +19,7 @@ import { CreditCard, Send, PiggyBank, TrendingUp, Wallet, Zap } from 'lucide-rea
 import SplitTextAnimation, { SplitWordsAnimation, MaskTextReveal } from '@/components/typography/SplitTextAnimation';
 import { GoldenContainer, GoldenGrid, GoldenSection, GoldenCard } from '@/components/layout/GoldenLayout';
 import { ScrollReveal as AwwardsScrollReveal, Magnetic, ParallaxScroll, StaggerContainer, FloatingParticles, LiquidLoader } from '@/components/animations/AwwardsAnimations';
-import { AwwardsLoadingScreen } from '@/components/ui/ModernLoader';
+import { StunningLoadingScreen } from '@/components/ui/ModernLoader';
 import CinematicHero from '@/components/hero/CinematicHero';
 import PageLayout from '@/components/layout/PageLayout';
 import { SwipeHandler, PullToRefresh } from '@/components/navigation/PageTransitions';
@@ -28,22 +28,40 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [minLoadingComplete, setMinLoadingComplete] = useState(false);
+  const [resourcesLoaded, setResourcesLoaded] = useState(false);
 
-  // Add minimum loading time to ensure user can see the beautiful loading screen
+  // Add extended loading time to fully appreciate the stunning visual experience
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinLoadingComplete(true);
-    }, 2500); // 2.5 seconds minimum
+    }, 5000); // 5 seconds minimum - enough time to enjoy the masterpiece
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Wait for all resources to be fully loaded
+  useEffect(() => {
+    const handleLoad = () => {
+      // Add a small delay to ensure everything is rendered
+      setTimeout(() => {
+        setResourcesLoaded(true);
+      }, 1000);
+    };
+
+    if (document.readyState === 'complete') {
+      handleLoad();
+    } else {
+      window.addEventListener('load', handleLoad);
+      return () => window.removeEventListener('load', handleLoad);
+    }
   }, []);
 
   // Remove the redirect useEffect to prevent redirect loop
   // The middleware already handles authentication redirects
 
-  if (status === 'loading' || !minLoadingComplete) {
+  if (status === 'loading' || !minLoadingComplete || !resourcesLoaded) {
     return (
-      <AwwardsLoadingScreen />
+      <StunningLoadingScreen />
     );
   }
 
